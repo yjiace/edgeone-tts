@@ -97,7 +97,3 @@ GET /v1/audio/speech/你好世界?voice=zh-CN-YunxiNeural&speed=1.2
 > **Token 缓存**：通过模块级变量缓存 Edge TTS Token，Isolate 温热状态下有效，冷启动后自动重新获取。
 
 ---
-
-## 迁移原因
-
-Cloudflare Worker 在国内访问延迟较高，EdgeOne 依托腾讯 3200+ 边缘节点，国内访问速度和稳定性通常更好，更适合配合阅读 APP 做实时朗读。
