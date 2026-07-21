@@ -1,30 +1,4 @@
-/**
- * functions/index.js
- * 路由：GET /
- *
- * 返回精美的 Web UI 调试页面，供浏览器手动测试 TTS 接口。
- */
-
-import { makeCORSHeaders } from './_lib/tts-core.js';
-
-/**
- * 处理 GET 请求，返回 Web UI HTML
- */
-export async function onRequestGet(context) {
-    return new Response(getWebUI(), {
-        headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-            ...makeCORSHeaders(),
-        },
-    });
-}
-
-// ─────────────────────────────────────────────
-// Web UI HTML
-// ─────────────────────────────────────────────
-
-function getWebUI() {
-    return `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8" />
@@ -628,12 +602,13 @@ function getWebUI() {
         <div class="api-block">
             <div class="api-method">
                 <span class="badge get">GET</span>
-                <span class="api-url">/v1/audio/speech/{文本}</span>
+                <span class="api-url">/v1/audio/speech</span>
             </div>
             <div class="api-desc">
-                适合阅读 APP (如 Legado) 直接调用，文本参数位于 URL 路径中（需 URL 编码）。<br/>
+                适合阅读 APP (如 Legado) 直接调用。为了彻底避免特殊字符导致的 404 错误，现在推荐直接使用 URL 查询参数传递文本（需 URL 编码）。<br/>
                 <strong>Query 参数支持:</strong>
                 <ul style="margin-top:8px; margin-bottom:12px; padding-left:20px; color:var(--text-2);">
+                    <li><code>text</code>: <strong>(必填)</strong> 要合成的文本</li>
                     <li><code>voice</code>: 发音人角色</li>
                     <li><code>speed</code>: 语速，0.5 ~ 2.0 (默认 1.0)</li>
                     <li><code>pitch</code>: 音调，0.5 ~ 2.0 (默认 1.0)</li>
@@ -643,7 +618,7 @@ function getWebUI() {
                     <li><code>token</code>: API 密钥 (可选，支持直接在 URL 中鉴权)</li>
                 </ul>
                 <strong>示例：</strong><br/>
-                <code style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech/你好世界?voice=zh-CN-YunxiNeural&speed=1.2&volume=1.5&style=cheerful&token=API_KEY</code>
+                <code style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech?text=你好世界&voice=zh-CN-YunxiNeural&speed=1.2&volume=1.5&style=cheerful&token=API_KEY</code>
             </div>
         </div>
     </div>
@@ -743,7 +718,7 @@ function getWebUI() {
                 // Auto play
                 audioEl.play().catch(() => {});
             } else {
-                let errMsg = \`HTTP \${res.status}\`;
+                let errMsg = `HTTP ${res.status}`;
                 try {
                     const text = await res.text();
                     try {
@@ -767,5 +742,4 @@ function getWebUI() {
 })();
 </script>
 </body>
-</html>`;
-}
+</html>

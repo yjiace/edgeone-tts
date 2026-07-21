@@ -83,12 +83,66 @@ async function handlePost(context) {
     }
 }
 
+async function handleGet(context) {
+    const { request, env } = context;
+    const url = new URL(request.url);
+
+    // 鉴权
+    const { ok, response: authErr } = checkApiKey(request, env.API_KEY);
+    if (!ok) return authErr;
+
+    // 从 Query 参数获取 text
+    const input = url.searchParams.get('text');
+    if (!input || !input.trim()) {
+        return createErrorResponse('Missing required parameter: text (e.g. ?text=hello)', 'missing_input', 400);
+    }
+
+    const voice = url.searchParams.get('voice') || DEFAULT_VOICE;
+    const speed = parseFloat(url.searchParams.get('speed') || String(DEFAULT_SPEED));
+    const pitch = parseFloat(url.searchParams.get('pitch') || String(DEFAULT_PITCH));
+    const volume = parseFloat(url.searchParams.get('volume') || String(DEFAULT_VOLUME));
+    const style = url.searchParams.get('style') || DEFAULT_STYLE;
+    const format = url.searchParams.get('format') || DEFAULT_FORMAT;
+
+    // 参数校验
+    try {
+        validateParameterRange('speed', speed, 0.5, 2.0);
+        validateParameterRange('pitch', pitch, 0.5, 2.0);
+        validateParameterRange('volume', volume, 0.1, 2.0);
+    } catch (err) {
+        return createErrorResponse(err.message, 'invalid_parameter', 400);
+    }
+
+    try {
+        // 调用核心函数生成语音
+        return await getVoice(
+            input,
+            voice,
+            speedToRate(speed),
+            pitchToString(pitch),
+            volumeToString(volume),
+            style,
+            format
+        );
+    } catch (err) {
+        console.error('[speech/index GET] TTS error:', err);
+        return createErrorResponse(
+            err.message + '\n' + (err.stack || ''),
+            'edge_tts_error',
+            500
+        );
+    }
+}
+
 export async function onRequest(context) {
     if (context.request.method.toUpperCase() === 'OPTIONS') {
         return handleOptions(context.request);
     }
     if (context.request.method.toUpperCase() === 'POST') {
         return handlePost(context);
+    }
+    if (context.request.method.toUpperCase() === 'GET' || context.request.method.toUpperCase() === 'HEAD') {
+        return handleGet(context);
     }
     
     return new Response(
@@ -97,7 +151,7 @@ export async function onRequest(context) {
             status: 405,
             headers: {
                 'Content-Type': 'application/json',
-                Allow: 'POST, OPTIONS',
+                Allow: 'GET, POST, OPTIONS',
                 ...makeCORSHeaders(),
             },
         }
