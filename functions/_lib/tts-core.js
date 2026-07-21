@@ -22,6 +22,15 @@ export const DEFAULT_SPEED = 1.0;
 /** 默认音调（1.0 = 原调） */
 export const DEFAULT_PITCH = 1.0;
 
+/** 默认音量（1.0 = 原音量） */
+export const DEFAULT_VOLUME = 1.0;
+
+/** 默认风格 */
+export const DEFAULT_STYLE = 'general';
+
+/** 默认输出音频格式 */
+export const DEFAULT_FORMAT = 'audio-24khz-48kbitrate-mono-mp3';
+
 // ─────────────────────────────────────────────
 // 模块级 Token 缓存（Isolate 温热时有效）
 // ─────────────────────────────────────────────
@@ -124,6 +133,16 @@ export function speedToRate(speed) {
 export function pitchToString(pitch) {
     const p = parseInt(String((parseFloat(pitch) - 1.0) * 100));
     return p >= 0 ? `+${p}%` : `${p}%`;
+}
+
+/**
+ * 将音量参数（0.1~2.0）转换为 Edge TTS 的百分比偏移字符串
+ * @param {number} volume
+ * @returns {string}
+ */
+export function volumeToString(volume) {
+    const v = parseInt(String((parseFloat(volume) - 1.0) * 100));
+    return v >= 0 ? `+${v}%` : `${v}%`;
 }
 
 // ─────────────────────────────────────────────

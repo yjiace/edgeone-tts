@@ -10,6 +10,9 @@ import {
     DEFAULT_VOICE,
     DEFAULT_SPEED,
     DEFAULT_PITCH,
+    DEFAULT_VOLUME,
+    DEFAULT_STYLE,
+    DEFAULT_FORMAT,
     checkApiKey,
     createErrorResponse,
     handleOptions,
@@ -17,10 +20,9 @@ import {
     validateParameterRange,
     speedToRate,
     pitchToString,
+    volumeToString,
     getVoice,
 } from '../../../_lib/tts-core.js';
-
-const OUTPUT_FORMAT = 'audio-24khz-48kbitrate-mono-mp3';
 
 async function handlePost(context) {
     const { request, env } = context;
@@ -37,7 +39,15 @@ async function handlePost(context) {
         return createErrorResponse('Invalid JSON payload', 'invalid_request_error', 400);
     }
 
-    const { input, voice = DEFAULT_VOICE, speed = DEFAULT_SPEED, pitch = DEFAULT_PITCH } = body;
+    const { 
+        input, 
+        voice = DEFAULT_VOICE, 
+        speed = DEFAULT_SPEED, 
+        pitch = DEFAULT_PITCH,
+        volume = DEFAULT_VOLUME,
+        style = DEFAULT_STYLE,
+        format = DEFAULT_FORMAT
+    } = body;
 
     if (!input || typeof input !== 'string' || !input.trim()) {
         return createErrorResponse('Missing required parameter: input', 'missing_input', 400);
@@ -47,6 +57,7 @@ async function handlePost(context) {
     try {
         validateParameterRange('speed', speed, 0.5, 2.0);
         validateParameterRange('pitch', pitch, 0.5, 2.0);
+        validateParameterRange('volume', volume, 0.1, 2.0);
     } catch (err) {
         return createErrorResponse(err.message, 'invalid_parameter', 400);
     }
@@ -58,9 +69,9 @@ async function handlePost(context) {
             voice,
             speedToRate(speed),
             pitchToString(pitch),
-            '+0%',
-            'general',
-            OUTPUT_FORMAT
+            volumeToString(volume),
+            style,
+            format
         );
     } catch (err) {
         console.error('[speech/index] TTS error:', err);

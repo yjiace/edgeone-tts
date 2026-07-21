@@ -8,6 +8,9 @@ import {
     DEFAULT_VOICE,
     DEFAULT_SPEED,
     DEFAULT_PITCH,
+    DEFAULT_VOLUME,
+    DEFAULT_STYLE,
+    DEFAULT_FORMAT,
     checkApiKey,
     createErrorResponse,
     handleOptions,
@@ -15,10 +18,9 @@ import {
     validateParameterRange,
     speedToRate,
     pitchToString,
+    volumeToString,
     getVoice,
 } from '../../../_lib/tts-core.js';
-
-const OUTPUT_FORMAT = 'audio-24khz-48kbitrate-mono-mp3';
 
 async function handleGet(context, rawText) {
     const { request, env } = context;
@@ -45,10 +47,14 @@ async function handleGet(context, rawText) {
     const voice = url.searchParams.get('voice') || DEFAULT_VOICE;
     const speed = parseFloat(url.searchParams.get('speed') || String(DEFAULT_SPEED));
     const pitch = parseFloat(url.searchParams.get('pitch') || String(DEFAULT_PITCH));
+    const volume = parseFloat(url.searchParams.get('volume') || String(DEFAULT_VOLUME));
+    const style = url.searchParams.get('style') || DEFAULT_STYLE;
+    const format = url.searchParams.get('format') || DEFAULT_FORMAT;
 
     try {
         validateParameterRange('speed', speed, 0.5, 2.0);
         validateParameterRange('pitch', pitch, 0.5, 2.0);
+        validateParameterRange('volume', volume, 0.1, 2.0);
     } catch (err) {
         return createErrorResponse(err.message, 'invalid_parameter', 400);
     }
@@ -59,9 +65,9 @@ async function handleGet(context, rawText) {
             voice,
             speedToRate(speed),
             pitchToString(pitch),
-            '+0%',
-            'general',
-            OUTPUT_FORMAT
+            volumeToString(volume),
+            style,
+            format
         );
     } catch (err) {
         console.error('[speech/[[path]]] TTS error:', err);

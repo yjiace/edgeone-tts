@@ -524,6 +524,48 @@ function getWebUI() {
                 </div>
             </div>
 
+            <!-- Volume & Style -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="volume">音量</label>
+                    <div class="slider-wrap">
+                        <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" />
+                        <span class="slider-val" id="volume-val">1.0x</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="style">情感风格 (部分角色支持)</label>
+                    <select id="style">
+                        <option value="general">常规 (General)</option>
+                        <option value="cheerful">欢快 (Cheerful)</option>
+                        <option value="sad">悲伤 (Sad)</option>
+                        <option value="angry">生气 (Angry)</option>
+                        <option value="fearful">恐惧 (Fearful)</option>
+                        <option value="disgruntled">不满 (Disgruntled)</option>
+                        <option value="serious">严肃 (Serious)</option>
+                        <option value="affectionate">亲切 (Affectionate)</option>
+                        <option value="gentle">温和 (Gentle)</option>
+                        <option value="newscast">新闻播报 (Newscast)</option>
+                        <option value="poetry-reading">诗歌朗读 (Poetry)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Format -->
+            <div class="form-group">
+                <label for="format">输出格式</label>
+                <select id="format">
+                    <option value="audio-24khz-48kbitrate-mono-mp3">MP3 - 24kHz 48kbps (默认, 兼容性好)</option>
+                    <option value="audio-24khz-96kbitrate-mono-mp3">MP3 - 24kHz 96kbps</option>
+                    <option value="audio-48khz-96kbitrate-mono-mp3">MP3 - 48kHz 96kbps (高音质)</option>
+                    <option value="audio-48khz-192kbitrate-mono-mp3">MP3 - 48kHz 192kbps (超高音质)</option>
+                    <option value="riff-24khz-16bit-mono-pcm">WAV - 24kHz PCM (无损)</option>
+                    <option value="riff-48khz-16bit-mono-pcm">WAV - 48kHz PCM (超高音质无损)</option>
+                    <option value="ogg-24khz-16bit-mono-opus">OGG - 24kHz Opus</option>
+                    <option value="webm-24khz-16bit-mono-opus">WebM - 24kHz Opus</option>
+                </select>
+            </div>
+
             <!-- Submit -->
             <button id="submit-btn" class="btn-primary" type="submit">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
@@ -557,11 +599,10 @@ function getWebUI() {
         </div>
     </div>
 
-    <!-- API Docs -->
     <div class="api-card">
         <h2>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent-2)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-            API 接口
+            API 接口说明
         </h2>
 
         <div class="api-block">
@@ -569,9 +610,18 @@ function getWebUI() {
                 <span class="badge post">POST</span>
                 <span class="api-url">/v1/audio/speech</span>
             </div>
-            <div class="api-desc">
-                JSON Body: <code>{ "input": "文本", "voice": "zh-CN-XiaoxiaoNeural", "speed": 1.0, "pitch": 1.0 }</code><br/>
-                Header: <code>Authorization: Bearer &lt;API_KEY&gt;</code>
+            <div class="api-desc" style="line-height: 1.6;">
+                <strong>Headers:</strong> <code>Authorization: Bearer &lt;API_KEY&gt;</code><br/>
+                <strong>Body (JSON):</strong>
+                <pre style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; margin-top:8px; overflow-x:auto; font-family: 'Menlo', 'Monaco', 'Consolas', monospace; font-size:12px; color:var(--text-2);">{
+  "input": "要合成的文本 (必填)",
+  "voice": "zh-CN-XiaoxiaoNeural (可选)",
+  "speed": 1.0,           // 语速 0.5 ~ 2.0
+  "pitch": 1.0,           // 音调 0.5 ~ 2.0
+  "volume": 1.0,          // 音量 0.1 ~ 2.0
+  "style": "general",     // 情感风格 (如 cheerful, sad)
+  "format": "audio-24khz-48kbitrate-mono-mp3" // 音频格式
+}</pre>
             </div>
         </div>
 
@@ -581,8 +631,19 @@ function getWebUI() {
                 <span class="api-url">/v1/audio/speech/{文本}</span>
             </div>
             <div class="api-desc">
-                路径参数方式，适合阅读 APP 直接调用。<br/>
-                示例：<code>/v1/audio/speech/你好世界?voice=zh-CN-YunxiNeural&speed=1.2</code>
+                适合阅读 APP (如 Legado) 直接调用，文本参数位于 URL 路径中（需 URL 编码）。<br/>
+                <strong>Query 参数支持:</strong>
+                <ul style="margin-top:8px; margin-bottom:12px; padding-left:20px; color:var(--text-2);">
+                    <li><code>voice</code>: 发音人角色</li>
+                    <li><code>speed</code>: 语速，0.5 ~ 2.0 (默认 1.0)</li>
+                    <li><code>pitch</code>: 音调，0.5 ~ 2.0 (默认 1.0)</li>
+                    <li><code>volume</code>: 音量，0.1 ~ 2.0 (默认 1.0)</li>
+                    <li><code>style</code>: 情感风格 (如 general, cheerful, angry 等)</li>
+                    <li><code>format</code>: 输出音频格式 (默认 24kHz MP3)</li>
+                    <li><code>token</code>: API 密钥 (可选，支持直接在 URL 中鉴权)</li>
+                </ul>
+                <strong>示例：</strong><br/>
+                <code style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech/你好世界?voice=zh-CN-YunxiNeural&speed=1.2&volume=1.5&style=cheerful&token=API_KEY</code>
             </div>
         </div>
     </div>
@@ -604,8 +665,10 @@ function getWebUI() {
     const dlLink     = document.getElementById('download-link');
     const speedSlider = document.getElementById('speed');
     const pitchSlider = document.getElementById('pitch');
+    const volumeSlider = document.getElementById('volume');
     const speedVal   = document.getElementById('speed-val');
     const pitchVal   = document.getElementById('pitch-val');
+    const volumeVal  = document.getElementById('volume-val');
 
     // ── Slider labels ──────────────────────────
     speedSlider.addEventListener('input', () => {
@@ -613,6 +676,9 @@ function getWebUI() {
     });
     pitchSlider.addEventListener('input', () => {
         pitchVal.textContent = parseFloat(pitchSlider.value).toFixed(1) + 'x';
+    });
+    volumeSlider.addEventListener('input', () => {
+        volumeVal.textContent = parseFloat(volumeSlider.value).toFixed(1) + 'x';
     });
 
     // ── Helper: set status ────────────────────
@@ -634,6 +700,9 @@ function getWebUI() {
         const voice    = document.getElementById('voice').value;
         const speed    = parseFloat(speedSlider.value);
         const pitch    = parseFloat(pitchSlider.value);
+        const volume   = parseFloat(volumeSlider.value);
+        const style    = document.getElementById('style').value;
+        const format   = document.getElementById('format').value;
         const apiToken = document.getElementById('api-token').value.trim();
 
         if (!text) { setStatus('请输入要转换的文本', 'error'); return; }
@@ -654,14 +723,21 @@ function getWebUI() {
             const res = await fetch('/v1/audio/speech', {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch }),
+                body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch, volume, style, format }),
             });
 
             if (res.ok) {
                 const blob    = await res.blob();
                 const url     = URL.createObjectURL(blob);
+                
+                let ext = 'mp3';
+                if (format.includes('pcm')) ext = 'wav';
+                else if (format.includes('ogg')) ext = 'ogg';
+                else if (format.includes('webm')) ext = 'webm';
+
                 audioEl.src   = url;
                 dlLink.href   = url;
+                dlLink.download = `tts-output.${ext}`;
                 audioSec.classList.add('visible');
                 setStatus('合成完成 ✓', 'success');
                 // Auto play
