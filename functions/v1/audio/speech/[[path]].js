@@ -1,8 +1,7 @@
 /**
- * functions/v1/audio/speech/_middleware.js
+ * functions/v1/audio/speech/[[path]].js
  * 
- * 替代 [[params]].js 的中间件，用于避开上传时文件名包含括号的限制。
- * 拦截 /v1/audio/speech/ 下的所有请求。
+ * 处理 /v1/audio/speech/{text} 的 GET 请求
  */
 
 import {
@@ -65,47 +64,39 @@ async function handleGet(context, rawText) {
             OUTPUT_FORMAT
         );
     } catch (err) {
-        console.error('[speech/_middleware] TTS error:', err);
+        console.error('[speech/[[path]]] TTS error:', err);
         return createErrorResponse(err.message, 'edge_tts_error', 500);
     }
 }
 
 export async function onRequest(context) {
-    const { request, next } = context;
+    const { request } = context;
     const url = new URL(request.url);
     const method = request.method.toUpperCase();
 
-    // 预检请求放行或直接处理
     if (method === 'OPTIONS') {
         return handleOptions(request);
     }
 
-    const basePath = '/v1/audio/speech';
-    
-    // 如果请求路径刚好是 /v1/audio/speech 或 /v1/audio/speech/
-    // 则放行给该目录下的 index.js 处理（比如 POST 接口）
-    if (url.pathname === basePath || url.pathname === basePath + '/') {
-        return next();
-    }
-
-    // 否则说明是动态路由 GET /v1/audio/speech/{text}
     if (method === 'GET' || method === 'HEAD') {
-        // 提取前缀之后的部分作为文本
-        const prefix = basePath + '/';
-        if (url.pathname.startsWith(prefix)) {
-            const rawText = url.pathname.slice(prefix.length);
-            return handleGet(context, rawText);
+        const basePath = '/v1/audio/speech/';
+        let rawText = '';
+        if (url.pathname.startsWith(basePath)) {
+            rawText = url.pathname.slice(basePath.length);
+        } else if (context.params.path) {
+            rawText = (Array.isArray(context.params.path) ? context.params.path.join('/') : context.params.path);
         }
+
+        return handleGet(context, rawText);
     }
 
-    // 如果不是 GET，又不是根路径，则返回 405
     return new Response(
         JSON.stringify({ error: { message: 'Method Not Allowed', code: 'method_not_allowed' } }),
         {
             status: 405,
             headers: {
                 'Content-Type': 'application/json',
-                Allow: 'GET, HEAD, POST, OPTIONS',
+                Allow: 'GET, HEAD, OPTIONS',
                 ...makeCORSHeaders(),
             },
         }

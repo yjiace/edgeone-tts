@@ -131,7 +131,7 @@ export function pitchToString(pitch) {
 // ─────────────────────────────────────────────
 
 /**
- * 从请求头提取并校验 API Key
+ * 从请求头或 URL 参数提取并校验 API Key
  * @param {Request} request
  * @param {string|undefined} expectedKey  若为空则跳过校验
  * @returns {{ ok: boolean, response?: Response }}
@@ -139,15 +139,20 @@ export function pitchToString(pitch) {
 export function checkApiKey(request, expectedKey) {
     if (!expectedKey) return { ok: true };
 
+    const url = new URL(request.url);
+    const queryToken = url.searchParams.get('token');
+
     const authHeader =
         request.headers.get('authorization') || request.headers.get('x-api-key');
-    const apiKey = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+
+    const apiKey = queryToken || headerToken;
 
     if (apiKey !== expectedKey) {
         return {
             ok: false,
             response: createErrorResponse(
-                "Invalid API key. Use 'Authorization: Bearer your-api-key' header",
+                "Invalid API key. Use 'Authorization: Bearer your-api-key' header or '?token=your-api-key' in URL",
                 'invalid_api_key',
                 401
             ),
