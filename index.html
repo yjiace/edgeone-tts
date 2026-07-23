@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,32 +8,41 @@
     <meta name="description" content="基于 EdgeOne Pages Functions 和微软 Edge TTS 构建的文本转语音服务，支持多种中英文语音、语速和音调调节。" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
     <style>
         /* ── Reset & Base ─────────────────────────── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg:         #0d0f14;
-            --surface:    #161922;
-            --surface-2:  #1e222e;
-            --border:     rgba(255,255,255,0.07);
-            --accent:     #6c63ff;
-            --accent-2:   #a78bfa;
-            --accent-glow:rgba(108,99,255,0.25);
-            --text-1:     #f0f0f8;
-            --text-2:     #9ca3af;
-            --text-3:     #6b7280;
-            --success:    #34d399;
-            --error:      #f87171;
-            --warning:    #fbbf24;
-            --radius-sm:  8px;
-            --radius-md:  14px;
-            --radius-lg:  20px;
-            --shadow:     0 8px 32px rgba(0,0,0,0.4);
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        html { scroll-behavior: smooth; }
+        :root {
+            --bg: #0d0f14;
+            --surface: #161922;
+            --surface-2: #1e222e;
+            --border: rgba(255, 255, 255, 0.07);
+            --accent: #6c63ff;
+            --accent-2: #a78bfa;
+            --accent-glow: rgba(108, 99, 255, 0.25);
+            --text-1: #f0f0f8;
+            --text-2: #9ca3af;
+            --text-3: #6b7280;
+            --success: #34d399;
+            --error: #f87171;
+            --warning: #fbbf24;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -49,8 +59,8 @@
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(ellipse 60% 40% at 20% 0%, rgba(108,99,255,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 30% at 80% 100%, rgba(167,139,250,0.08) 0%, transparent 60%);
+                radial-gradient(ellipse 60% 40% at 20% 0%, rgba(108, 99, 255, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 30% at 80% 100%, rgba(167, 139, 250, 0.08) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
@@ -85,7 +95,10 @@
             margin-bottom: 20px;
         }
 
-        .logo-badge svg { width: 14px; height: 14px; }
+        .logo-badge svg {
+            width: 14px;
+            height: 14px;
+        }
 
         h1 {
             font-size: clamp(2rem, 5vw, 2.8rem);
@@ -125,7 +138,11 @@
             gap: 16px;
         }
 
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
         label {
             font-size: 13px;
@@ -134,7 +151,9 @@
             letter-spacing: 0.02em;
         }
 
-        .input-wrap { position: relative; }
+        .input-wrap {
+            position: relative;
+        }
 
         input[type="text"],
         input[type="password"],
@@ -155,7 +174,9 @@
             -webkit-appearance: none;
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
@@ -238,12 +259,22 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
         }
 
-        .btn-primary:hover:not(:disabled) { opacity: 0.9; box-shadow: 0 6px 24px var(--accent-glow); }
-        .btn-primary:active:not(:disabled) { transform: scale(0.98); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.9;
+            box-shadow: 0 6px 24px var(--accent-glow);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
         /* ── Loading ─────────────────────────────── */
         .loading-bar {
@@ -256,11 +287,18 @@
         }
 
         @keyframes shimmer {
-            0%   { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
-        .loading-bar.active { display: block; }
+        .loading-bar.active {
+            display: block;
+        }
 
         .status-row {
             display: flex;
@@ -271,19 +309,38 @@
         }
 
         .status-dot {
-            width: 7px; height: 7px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             flex-shrink: 0;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
+
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.5; transform: scale(0.7); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
         }
 
-        .status-text { color: var(--text-2); }
-        .status-text.error  { color: var(--error); }
-        .status-text.success { color: var(--success); }
+        .status-text {
+            color: var(--text-2);
+        }
+
+        .status-text.error {
+            color: var(--error);
+        }
+
+        .status-text.success {
+            color: var(--success);
+        }
 
         /* ── Audio player ────────────────────────── */
         .audio-section {
@@ -292,7 +349,9 @@
             gap: 12px;
         }
 
-        .audio-section.visible { display: flex; }
+        .audio-section.visible {
+            display: flex;
+        }
 
         .audio-label {
             display: flex;
@@ -320,13 +379,14 @@
             font-weight: 500;
             color: var(--accent-2);
             text-decoration: none;
-            border: 1px solid rgba(167,139,250,0.25);
+            border: 1px solid rgba(167, 139, 250, 0.25);
             border-radius: var(--radius-sm);
             padding: 8px 16px;
             transition: background 0.2s, border-color 0.2s;
         }
+
         .download-btn:hover {
-            background: rgba(167,139,250,0.08);
+            background: rgba(167, 139, 250, 0.08);
             border-color: var(--accent-2);
         }
 
@@ -371,8 +431,16 @@
             border-radius: 4px;
             letter-spacing: 0.05em;
         }
-        .badge.post { background: rgba(52,211,153,0.15); color: var(--success); }
-        .badge.get  { background: rgba(108,99,255,0.15); color: var(--accent-2); }
+
+        .badge.post {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--success);
+        }
+
+        .badge.get {
+            background: rgba(108, 99, 255, 0.15);
+            color: var(--accent-2);
+        }
 
         .api-url {
             font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
@@ -389,7 +457,7 @@
         code {
             font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
             font-size: 12px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
             padding: 2px 6px;
             color: var(--accent-2);
@@ -405,189 +473,253 @@
 
         /* ── Responsive ──────────────────────────── */
         @media (max-width: 560px) {
-            .page { padding: 28px 16px 60px; }
-            .card, .api-card { padding: 22px 18px; }
-            .form-row { grid-template-columns: 1fr; }
+            .page {
+                padding: 28px 16px 60px;
+            }
+
+            .card,
+            .api-card {
+                padding: 22px 18px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
-<div class="page">
+    <div class="page">
 
-    <!-- Header -->
-    <header class="header">
-        <div class="logo-badge">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg>
-            EdgeOne TTS
-        </div>
-        <h1>文本转语音</h1>
-        <p class="subtitle">由 Microsoft Edge TTS 驱动 · 运行于腾讯 EdgeOne 边缘节点</p>
-    </header>
-
-    <!-- Main card -->
-    <div class="card">
-        <form id="tts-form" class="form-grid" autocomplete="off">
-
-            <!-- API Token -->
-            <div class="form-group">
-                <label for="api-token">API Token（如已设置环境变量）</label>
-                <input id="api-token" type="password" placeholder="Bearer token，留空则无需鉴权" />
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" />
+                </svg>
+                EdgeOne TTS
             </div>
+            <h1>文本转语音</h1>
+            <p class="subtitle">由 Microsoft Edge TTS 驱动 · 运行于腾讯 EdgeOne 边缘节点</p>
+        </header>
 
-            <div class="divider"></div>
+        <!-- Main card -->
+        <div class="card">
+            <form id="tts-form" class="form-grid" autocomplete="off">
 
-            <!-- Text -->
-            <div class="form-group">
-                <label for="text">输入文本 <span style="color:var(--error)">*</span></label>
-                <textarea id="text" required placeholder="在此输入要朗读的文本，支持换行分段合成…">你好啊，亲爱的朋友们！欢迎使用 EdgeOne TTS 服务。</textarea>
-            </div>
-
-            <!-- Voice -->
-            <div class="form-group">
-                <label for="voice">语音角色</label>
-                <select id="voice">
-                    <optgroup label="── 中文普通话 ──">
-                        <option value="zh-CN-XiaoxiaoNeural">晓晓 — 温暖活泼（女）</option>
-                        <option value="zh-CN-XiaoyiNeural">晓伊 — 温暖亲切（女）</option>
-                        <option value="zh-CN-XiaohanNeural">晓涵 — 自然流畅（女）</option>
-                        <option value="zh-CN-XiaomengNeural">晓梦 — 甜美活力（女）</option>
-                        <option value="zh-CN-XiaochenNeural">晓辰 — 温和从容（女）</option>
-                        <option value="zh-CN-XiaoshuangNeural">晓双 — 温柔细腻（女）</option>
-                        <option value="zh-CN-XiaoxuanNeural">晓萱 — 知性优雅（女）</option>
-                        <option value="zh-CN-XiaomoNeural">晓墨 — 沉稳优雅（女）</option>
-                        <option value="zh-CN-XiaozhenNeural">晓甄 — 自信干练（女）</option>
-                        <option value="zh-CN-YunxiNeural">云希 — 稳重大方（男）</option>
-                        <option value="zh-CN-YunyangNeural">云扬 — 专业播报（男）</option>
-                        <option value="zh-CN-XiaoruiNeural">晓睿 — 儒雅随和（男）</option>
-                        <option value="zh-CN-YunfengNeural">云枫 — 成熟稳重（男）</option>
-                        <option value="zh-CN-YunjianNeural">云健 — 阳光活力（男）</option>
-                        <option value="zh-CN-YunxiaNeural">云夏 — 青春朝气（男）</option>
-                    </optgroup>
-                    <optgroup label="── 英文 ──">
-                        <option value="en-US-JennyNeural">Jenny — 英文女声</option>
-                        <option value="en-US-GuyNeural">Guy — 英文男声</option>
-                        <option value="en-US-AriaNeural">Aria — 英文女声</option>
-                        <option value="en-US-DavisNeural">Davis — 英文男声</option>
-                    </optgroup>
-                    <optgroup label="── 日文 ──">
-                        <option value="ja-JP-NanamiNeural">Nanami — 日文女声</option>
-                        <option value="ja-JP-KeitaNeural">Keita — 日文男声</option>
-                    </optgroup>
-                    <optgroup label="── 韩文 ──">
-                        <option value="ko-KR-SunHiNeural">Sun-Hi — 韩文女声</option>
-                        <option value="ko-KR-InJoonNeural">InJoon — 韩文男声</option>
-                    </optgroup>
-                </select>
-            </div>
-
-            <!-- Speed & Pitch -->
-            <div class="form-row">
+                <!-- API Token -->
                 <div class="form-group">
-                    <label for="speed">语速</label>
-                    <div class="slider-wrap">
-                        <input id="speed" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
-                        <span class="slider-val" id="speed-val">1.0x</span>
-                    </div>
+                    <label for="api-token">API Token（如已设置环境变量）</label>
+                    <input id="api-token" type="password" placeholder="Bearer token，留空则无需鉴权" />
                 </div>
-                <div class="form-group">
-                    <label for="pitch">音调</label>
-                    <div class="slider-wrap">
-                        <input id="pitch" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
-                        <span class="slider-val" id="pitch-val">1.0x</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Volume & Style -->
-            <div class="form-row">
+                <div class="divider"></div>
+
+                <!-- Text -->
                 <div class="form-group">
-                    <label for="volume">音量</label>
-                    <div class="slider-wrap">
-                        <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" />
-                        <span class="slider-val" id="volume-val">1.0x</span>
-                    </div>
+                    <label for="text">输入文本 <span style="color:var(--error)">*</span></label>
+                    <textarea id="text" required
+                        placeholder="在此输入要朗读的文本，支持换行分段合成…">你好啊，亲爱的朋友们！欢迎使用 EdgeOne TTS 服务。</textarea>
                 </div>
+
+                <!-- Voice -->
                 <div class="form-group">
-                    <label for="style">情感风格 (部分角色支持)</label>
-                    <select id="style">
-                        <option value="general">常规 (General)</option>
-                        <option value="cheerful">欢快 (Cheerful)</option>
-                        <option value="sad">悲伤 (Sad)</option>
-                        <option value="angry">生气 (Angry)</option>
-                        <option value="fearful">恐惧 (Fearful)</option>
-                        <option value="disgruntled">不满 (Disgruntled)</option>
-                        <option value="serious">严肃 (Serious)</option>
-                        <option value="affectionate">亲切 (Affectionate)</option>
-                        <option value="gentle">温和 (Gentle)</option>
-                        <option value="newscast">新闻播报 (Newscast)</option>
-                        <option value="poetry-reading">诗歌朗读 (Poetry)</option>
+                    <label for="voice">语音角色</label>
+                    <select id="voice">
+                        <optgroup label="── 中文普通话 ──">
+                            <option value="zh-CN-XiaoxiaoNeural">晓晓（女）</option>
+                            <option value="zh-CN-XiaoyiNeural">晓伊（女）</option>
+                            <option value="zh-CN-XiaochenNeural">晓辰（女）</option>
+                            <option value="zh-CN-XiaohanNeural">晓涵（女）</option>
+                            <option value="zh-CN-XiaomengNeural">晓梦（女）</option>
+                            <option value="zh-CN-XiaomoNeural">晓墨（女）</option>
+                            <option value="zh-CN-XiaoqiuNeural">晓秋（女）</option>
+                            <option value="zh-CN-XiaoruiNeural">晓睿（女）</option>
+                            <option value="zh-CN-XiaoshuangNeural">晓双（女）</option>
+                            <option value="zh-CN-XiaoxuanNeural">晓萱（女）</option>
+                            <option value="zh-CN-XiaoyanNeural">晓颜（女）</option>
+                            <option value="zh-CN-XiaoyouNeural">晓悠（女）</option>
+                            <option value="zh-CN-XiaozhenNeural">晓甄（女）</option>
+                            <option value="zh-CN-XiaominNeural">晓敏（女）</option>
+                            <option value="zh-CN-XiaorouNeural">晓柔（女）</option>
+                            <option value="zh-CN-YunxiNeural">云希（男）</option>
+                            <option value="zh-CN-YunyangNeural">云扬（男）</option>
+                            <option value="zh-CN-YunjianNeural">云健（男）</option>
+                            <option value="zh-CN-YunfengNeural">云枫（男）</option>
+                            <option value="zh-CN-YunhaoNeural">云皓（男）</option>
+                            <option value="zh-CN-YunxiaNeural">云夏（男）</option>
+                            <option value="zh-CN-YunyeNeural">云野（男）</option>
+                            <option value="zh-CN-YunzeNeural">云泽（男）</option>
+                            <option value="zh-CN-YunjieNeural">云杰（男）</option>
+                            <option value="zh-CN-YundongNeural">云东（男）</option>
+                            <option value="zh-CN-HuihuiNeural">慧慧（女）</option>
+                            <option value="zh-CN-KangkangNeural">康康（男）</option>
+                            <option value="zh-CN-YaoyaoNeural">瑶瑶（女）</option>
+                        </optgroup>
+                        <optgroup label="── 方言 ──">
+                            <option value="zh-CN-liaoning-XiaobeiNeural">晓北(辽宁/东北话)</option>
+                            <option value="zh-CN-liaoning-YunbiaoNeural">云彪(辽宁)</option>
+                            <option value="zh-CN-shaanxi-XiaoniNeural">晓妮(陕西话)</option>
+                            <option value="zh-CN-shandong-YunxiangNeural">云翔(山东话)</option>
+                            <option value="zh-CN-sichuan-YunxiNeural">云希(四川话)</option>
+                            <option value="zh-CN-guangxi-YunqiNeural">云奇(广西)</option>
+                            <option value="zh-CN-henan-YundengNeural">云登(河南)</option>
+                        </optgroup>
+                        <optgroup label="── 香港 (粤语) ──">
+                            <option value="zh-HK-HiuGaaiNeural">晓佳(粤语)</option>
+                            <option value="zh-HK-HiuMaanNeural">晓曼(香港)</option>
+                            <option value="zh-HK-WanLungNeural">云龙(香港)</option>
+                        </optgroup>
+                        <optgroup label="── 台湾 ──">
+                            <option value="zh-TW-HsiaoChenNeural">晓辰(台湾)</option>
+                            <option value="zh-TW-HsiaoYuNeural">晓雨(台湾)</option>
+                            <option value="zh-TW-YunJheNeural">云哲(台湾)</option>
+                        </optgroup>
+                        <optgroup label="── 多语言 ──">
+                            <option value="zh-CN-XiaoxiaoMultilingualNeural">晓晓(多语言)</option>
+                            <option value="zh-CN-XiaoxiaoDialectsNeural">晓晓(方言)</option>
+                            <option value="zh-CN-XiaochenMultilingualNeural">晓晨(多语言)</option>
+                            <option value="zh-CN-XiaoyuMultilingualNeural">晓宇(多语言)</option>
+                            <option value="zh-CN-YunyiMultilingualNeural">云一(多语言)</option>
+                            <option value="zh-CN-YunfanMultilingualNeural">云凡(多语言)</option>
+                            <option value="zh-CN-YunxiaoMultilingualNeural">云晓(多语言)</option>
+                        </optgroup>
+                        <optgroup label="── 英文 ──">
+                            <option value="en-US-JennyNeural">Jenny — 英文女声</option>
+                            <option value="en-US-GuyNeural">Guy — 英文男声</option>
+                            <option value="en-US-AriaNeural">Aria — 英文女声</option>
+                            <option value="en-US-DavisNeural">Davis — 英文男声</option>
+                        </optgroup>
+                        <optgroup label="── 日文 ──">
+                            <option value="ja-JP-NanamiNeural">Nanami — 日文女声</option>
+                            <option value="ja-JP-KeitaNeural">Keita — 日文男声</option>
+                        </optgroup>
+                        <optgroup label="── 韩文 ──">
+                            <option value="ko-KR-SunHiNeural">Sun-Hi — 韩文女声</option>
+                            <option value="ko-KR-InJoonNeural">InJoon — 韩文男声</option>
+                        </optgroup>
                     </select>
                 </div>
+
+                <!-- Speed & Pitch -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="speed">语速</label>
+                        <div class="slider-wrap">
+                            <input id="speed" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+                            <span class="slider-val" id="speed-val">1.0x</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pitch">音调</label>
+                        <div class="slider-wrap">
+                            <input id="pitch" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+                            <span class="slider-val" id="pitch-val">1.0x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volume & Style -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="volume">音量</label>
+                        <div class="slider-wrap">
+                            <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" />
+                            <span class="slider-val" id="volume-val">1.0x</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="style">情感风格 (部分角色支持)</label>
+                        <select id="style">
+                            <option value="general">常规 (General)</option>
+                            <option value="cheerful">欢快 (Cheerful)</option>
+                            <option value="sad">悲伤 (Sad)</option>
+                            <option value="angry">生气 (Angry)</option>
+                            <option value="fearful">恐惧 (Fearful)</option>
+                            <option value="disgruntled">不满 (Disgruntled)</option>
+                            <option value="serious">严肃 (Serious)</option>
+                            <option value="affectionate">亲切 (Affectionate)</option>
+                            <option value="gentle">温和 (Gentle)</option>
+                            <option value="newscast">新闻播报 (Newscast)</option>
+                            <option value="poetry-reading">诗歌朗读 (Poetry)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Format -->
+                <div class="form-group">
+                    <label for="format">输出格式</label>
+                    <select id="format">
+                        <option value="audio-24khz-48kbitrate-mono-mp3">MP3 - 24kHz 48kbps (默认, 兼容性好)</option>
+                        <option value="audio-24khz-96kbitrate-mono-mp3">MP3 - 24kHz 96kbps</option>
+                        <option value="audio-48khz-96kbitrate-mono-mp3">MP3 - 48kHz 96kbps (高音质)</option>
+                        <option value="audio-48khz-192kbitrate-mono-mp3">MP3 - 48kHz 192kbps (超高音质)</option>
+                        <option value="riff-24khz-16bit-mono-pcm">WAV - 24kHz PCM (无损)</option>
+                        <option value="riff-48khz-16bit-mono-pcm">WAV - 48kHz PCM (超高音质无损)</option>
+                        <option value="ogg-24khz-16bit-mono-opus">OGG - 24kHz Opus</option>
+                        <option value="webm-24khz-16bit-mono-opus">WebM - 24kHz Opus</option>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <button id="submit-btn" class="btn-primary" type="submit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                    </svg>
+                    生成语音
+                </button>
+
+            </form>
+
+            <!-- Loading bar -->
+            <div id="loading-bar" class="loading-bar" style="margin-top:16px"></div>
+
+            <!-- Status -->
+            <div class="status-row" style="margin-top:12px" id="status-row">
+                <div class="status-dot" id="status-dot" style="display:none"></div>
+                <span class="status-text" id="status-text"></span>
             </div>
 
-            <!-- Format -->
-            <div class="form-group">
-                <label for="format">输出格式</label>
-                <select id="format">
-                    <option value="audio-24khz-48kbitrate-mono-mp3">MP3 - 24kHz 48kbps (默认, 兼容性好)</option>
-                    <option value="audio-24khz-96kbitrate-mono-mp3">MP3 - 24kHz 96kbps</option>
-                    <option value="audio-48khz-96kbitrate-mono-mp3">MP3 - 48kHz 96kbps (高音质)</option>
-                    <option value="audio-48khz-192kbitrate-mono-mp3">MP3 - 48kHz 192kbps (超高音质)</option>
-                    <option value="riff-24khz-16bit-mono-pcm">WAV - 24kHz PCM (无损)</option>
-                    <option value="riff-48khz-16bit-mono-pcm">WAV - 48kHz PCM (超高音质无损)</option>
-                    <option value="ogg-24khz-16bit-mono-opus">OGG - 24kHz Opus</option>
-                    <option value="webm-24khz-16bit-mono-opus">WebM - 24kHz Opus</option>
-                </select>
+            <!-- Audio output -->
+            <div class="audio-section" id="audio-section" style="margin-top:16px">
+                <div class="audio-label">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" />
+                    </svg>
+                    合成结果
+                </div>
+                <audio id="audio-player" controls preload="auto"></audio>
+                <div>
+                    <a id="download-link" class="download-btn" download="tts-output.mp3">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z" />
+                        </svg>
+                        下载 MP3
+                    </a>
+                </div>
             </div>
-
-            <!-- Submit -->
-            <button id="submit-btn" class="btn-primary" type="submit">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-                生成语音
-            </button>
-
-        </form>
-
-        <!-- Loading bar -->
-        <div id="loading-bar" class="loading-bar" style="margin-top:16px"></div>
-
-        <!-- Status -->
-        <div class="status-row" style="margin-top:12px" id="status-row">
-            <div class="status-dot" id="status-dot" style="display:none"></div>
-            <span class="status-text" id="status-text"></span>
         </div>
 
-        <!-- Audio output -->
-        <div class="audio-section" id="audio-section" style="margin-top:16px">
-            <div class="audio-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/></svg>
-                合成结果
-            </div>
-            <audio id="audio-player" controls preload="auto"></audio>
-            <div>
-                <a id="download-link" class="download-btn" download="tts-output.mp3">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
-                    下载 MP3
-                </a>
-            </div>
-        </div>
-    </div>
+        <div class="api-card">
+            <h2>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent-2)">
+                    <path
+                        d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+                </svg>
+                API 接口说明
+            </h2>
 
-    <div class="api-card">
-        <h2>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent-2)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-            API 接口说明
-        </h2>
-
-        <div class="api-block">
-            <div class="api-method">
-                <span class="badge post">POST</span>
-                <span class="api-url">/v1/audio/speech</span>
-            </div>
-            <div class="api-desc" style="line-height: 1.6;">
-                <strong>Headers:</strong> <code>Authorization: Bearer &lt;API_KEY&gt;</code><br/>
-                <strong>Body (JSON):</strong>
-                <pre style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; margin-top:8px; overflow-x:auto; font-family: 'Menlo', 'Monaco', 'Consolas', monospace; font-size:12px; color:var(--text-2);">{
+            <div class="api-block">
+                <div class="api-method">
+                    <span class="badge post">POST</span>
+                    <span class="api-url">/v1/audio/speech</span>
+                </div>
+                <div class="api-desc" style="line-height: 1.6;">
+                    <strong>Headers:</strong> <code>Authorization: Bearer &lt;API_KEY&gt;</code><br />
+                    <strong>Body (JSON):</strong>
+                    <pre
+                        style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; margin-top:8px; overflow-x:auto; font-family: 'Menlo', 'Monaco', 'Consolas', monospace; font-size:12px; color:var(--text-2);">{
   "input": "要合成的文本 (必填)",
   "voice": "zh-CN-XiaoxiaoNeural (可选)",
   "speed": 1.0,           // 语速 0.5 ~ 2.0
@@ -596,150 +728,152 @@
   "style": "general",     // 情感风格 (如 cheerful, sad)
   "format": "audio-24khz-48kbitrate-mono-mp3" // 音频格式
 }</pre>
+                </div>
+            </div>
+
+            <div class="api-block">
+                <div class="api-method">
+                    <span class="badge get">GET</span>
+                    <span class="api-url">/v1/audio/speech</span>
+                </div>
+                <div class="api-desc">
+                    适合阅读 APP (如 Legado) 直接调用。为了彻底避免特殊字符导致的 404 错误，现在推荐直接使用 URL 查询参数传递文本（需 URL 编码）。<br />
+                    <strong>Query 参数支持:</strong>
+                    <ul style="margin-top:8px; margin-bottom:12px; padding-left:20px; color:var(--text-2);">
+                        <li><code>text</code>: <strong>(必填)</strong> 要合成的文本</li>
+                        <li><code>voice</code>: 发音人角色</li>
+                        <li><code>speed</code>: 语速，0.5 ~ 2.0 (默认 1.0)</li>
+                        <li><code>pitch</code>: 音调，0.5 ~ 2.0 (默认 1.0)</li>
+                        <li><code>volume</code>: 音量，0.1 ~ 2.0 (默认 1.0)</li>
+                        <li><code>style</code>: 情感风格 (如 general, cheerful, angry 等)</li>
+                        <li><code>format</code>: 输出音频格式 (默认 24kHz MP3)</li>
+                        <li><code>token</code>: API 密钥 (可选，支持直接在 URL 中鉴权)</li>
+                    </ul>
+                    <strong>示例：</strong><br />
+                    <code
+                        style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech?text=你好世界&voice=zh-CN-YunxiNeural&speed=1.2&volume=1.5&style=cheerful&token=API_KEY</code>
+                </div>
             </div>
         </div>
 
-        <div class="api-block">
-            <div class="api-method">
-                <span class="badge get">GET</span>
-                <span class="api-url">/v1/audio/speech</span>
-            </div>
-            <div class="api-desc">
-                适合阅读 APP (如 Legado) 直接调用。为了彻底避免特殊字符导致的 404 错误，现在推荐直接使用 URL 查询参数传递文本（需 URL 编码）。<br/>
-                <strong>Query 参数支持:</strong>
-                <ul style="margin-top:8px; margin-bottom:12px; padding-left:20px; color:var(--text-2);">
-                    <li><code>text</code>: <strong>(必填)</strong> 要合成的文本</li>
-                    <li><code>voice</code>: 发音人角色</li>
-                    <li><code>speed</code>: 语速，0.5 ~ 2.0 (默认 1.0)</li>
-                    <li><code>pitch</code>: 音调，0.5 ~ 2.0 (默认 1.0)</li>
-                    <li><code>volume</code>: 音量，0.1 ~ 2.0 (默认 1.0)</li>
-                    <li><code>style</code>: 情感风格 (如 general, cheerful, angry 等)</li>
-                    <li><code>format</code>: 输出音频格式 (默认 24kHz MP3)</li>
-                    <li><code>token</code>: API 密钥 (可选，支持直接在 URL 中鉴权)</li>
-                </ul>
-                <strong>示例：</strong><br/>
-                <code style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech?text=你好世界&voice=zh-CN-YunxiNeural&speed=1.2&volume=1.5&style=cheerful&token=API_KEY</code>
-            </div>
-        </div>
+        <footer class="footer">
+            Powered by Microsoft Edge TTS · EdgeOne Pages Functions · © 2024
+        </footer>
     </div>
 
-    <footer class="footer">
-        Powered by Microsoft Edge TTS · EdgeOne Pages Functions · © 2024
-    </footer>
-</div>
+    <script>
+        (function () {
+            const form = document.getElementById('tts-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const loadingBar = document.getElementById('loading-bar');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const audioSec = document.getElementById('audio-section');
+            const audioEl = document.getElementById('audio-player');
+            const dlLink = document.getElementById('download-link');
+            const speedSlider = document.getElementById('speed');
+            const pitchSlider = document.getElementById('pitch');
+            const volumeSlider = document.getElementById('volume');
+            const speedVal = document.getElementById('speed-val');
+            const pitchVal = document.getElementById('pitch-val');
+            const volumeVal = document.getElementById('volume-val');
 
-<script>
-(function () {
-    const form       = document.getElementById('tts-form');
-    const submitBtn  = document.getElementById('submit-btn');
-    const loadingBar = document.getElementById('loading-bar');
-    const statusDot  = document.getElementById('status-dot');
-    const statusText = document.getElementById('status-text');
-    const audioSec   = document.getElementById('audio-section');
-    const audioEl    = document.getElementById('audio-player');
-    const dlLink     = document.getElementById('download-link');
-    const speedSlider = document.getElementById('speed');
-    const pitchSlider = document.getElementById('pitch');
-    const volumeSlider = document.getElementById('volume');
-    const speedVal   = document.getElementById('speed-val');
-    const pitchVal   = document.getElementById('pitch-val');
-    const volumeVal  = document.getElementById('volume-val');
-
-    // ── Slider labels ──────────────────────────
-    speedSlider.addEventListener('input', () => {
-        speedVal.textContent = parseFloat(speedSlider.value).toFixed(1) + 'x';
-    });
-    pitchSlider.addEventListener('input', () => {
-        pitchVal.textContent = parseFloat(pitchSlider.value).toFixed(1) + 'x';
-    });
-    volumeSlider.addEventListener('input', () => {
-        volumeVal.textContent = parseFloat(volumeSlider.value).toFixed(1) + 'x';
-    });
-
-    // ── Helper: set status ────────────────────
-    function setStatus(msg, type) {
-        statusText.textContent = msg;
-        statusText.className   = 'status-text' + (type ? ' ' + type : '');
-        statusDot.style.display = msg ? 'block' : 'none';
-        statusDot.style.background =
-            type === 'error'   ? 'var(--error)'   :
-            type === 'success' ? 'var(--success)'  :
-            'var(--warning)';
-    }
-
-    // ── Form submit ───────────────────────────
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const text     = document.getElementById('text').value.trim();
-        const voice    = document.getElementById('voice').value;
-        const speed    = parseFloat(speedSlider.value);
-        const pitch    = parseFloat(pitchSlider.value);
-        const volume   = parseFloat(volumeSlider.value);
-        const style    = document.getElementById('style').value;
-        const format   = document.getElementById('format').value;
-        const apiToken = document.getElementById('api-token').value.trim();
-
-        if (!text) { setStatus('请输入要转换的文本', 'error'); return; }
-
-        // Reset UI
-        submitBtn.disabled = true;
-        loadingBar.classList.add('active');
-        audioSec.classList.remove('visible');
-        setStatus('正在合成语音，请稍候…');
-
-        const headers = { 'Content-Type': 'application/json' };
-        if (apiToken) {
-            headers['Authorization'] = apiToken.startsWith('Bearer ')
-                ? apiToken : 'Bearer ' + apiToken;
-        }
-
-        try {
-            const res = await fetch('/v1/audio/speech', {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch, volume, style, format }),
+            // ── Slider labels ──────────────────────────
+            speedSlider.addEventListener('input', () => {
+                speedVal.textContent = parseFloat(speedSlider.value).toFixed(1) + 'x';
+            });
+            pitchSlider.addEventListener('input', () => {
+                pitchVal.textContent = parseFloat(pitchSlider.value).toFixed(1) + 'x';
+            });
+            volumeSlider.addEventListener('input', () => {
+                volumeVal.textContent = parseFloat(volumeSlider.value).toFixed(1) + 'x';
             });
 
-            if (res.ok) {
-                const blob    = await res.blob();
-                const url     = URL.createObjectURL(blob);
-                
-                let ext = 'mp3';
-                if (format.includes('pcm')) ext = 'wav';
-                else if (format.includes('ogg')) ext = 'ogg';
-                else if (format.includes('webm')) ext = 'webm';
-
-                audioEl.src   = url;
-                dlLink.href   = url;
-                dlLink.download = `tts-output.${ext}`;
-                audioSec.classList.add('visible');
-                setStatus('合成完成 ✓', 'success');
-                // Auto play
-                audioEl.play().catch(() => {});
-            } else {
-                let errMsg = `HTTP ${res.status}`;
-                try {
-                    const text = await res.text();
-                    try {
-                        const j = JSON.parse(text);
-                        errMsg = j?.error?.message || j?.message || text;
-                    } catch {
-                        errMsg = text || errMsg;
-                    }
-                } catch (e) {
-                    errMsg += ' (读取响应失败: ' + e.message + ')';
-                }
-                setStatus('错误：' + errMsg, 'error');
+            // ── Helper: set status ────────────────────
+            function setStatus(msg, type) {
+                statusText.textContent = msg;
+                statusText.className = 'status-text' + (type ? ' ' + type : '');
+                statusDot.style.display = msg ? 'block' : 'none';
+                statusDot.style.background =
+                    type === 'error' ? 'var(--error)' :
+                        type === 'success' ? 'var(--success)' :
+                            'var(--warning)';
             }
-        } catch (err) {
-            setStatus('网络错误：' + err.message, 'error');
-        } finally {
-            submitBtn.disabled = false;
-            loadingBar.classList.remove('active');
-        }
-    });
-})();
-</script>
+
+            // ── Form submit ───────────────────────────
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const text = document.getElementById('text').value.trim();
+                const voice = document.getElementById('voice').value;
+                const speed = parseFloat(speedSlider.value);
+                const pitch = parseFloat(pitchSlider.value);
+                const volume = parseFloat(volumeSlider.value);
+                const style = document.getElementById('style').value;
+                const format = document.getElementById('format').value;
+                const apiToken = document.getElementById('api-token').value.trim();
+
+                if (!text) { setStatus('请输入要转换的文本', 'error'); return; }
+
+                // Reset UI
+                submitBtn.disabled = true;
+                loadingBar.classList.add('active');
+                audioSec.classList.remove('visible');
+                setStatus('正在合成语音，请稍候…');
+
+                const headers = { 'Content-Type': 'application/json' };
+                if (apiToken) {
+                    headers['Authorization'] = apiToken.startsWith('Bearer ')
+                        ? apiToken : 'Bearer ' + apiToken;
+                }
+
+                try {
+                    const res = await fetch('/v1/audio/speech', {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch, volume, style, format }),
+                    });
+
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+
+                        let ext = 'mp3';
+                        if (format.includes('pcm')) ext = 'wav';
+                        else if (format.includes('ogg')) ext = 'ogg';
+                        else if (format.includes('webm')) ext = 'webm';
+
+                        audioEl.src = url;
+                        dlLink.href = url;
+                        dlLink.download = `tts-output.${ext}`;
+                        audioSec.classList.add('visible');
+                        setStatus('合成完成 ✓', 'success');
+                        // Auto play
+                        audioEl.play().catch(() => { });
+                    } else {
+                        let errMsg = `HTTP ${res.status}`;
+                        try {
+                            const text = await res.text();
+                            try {
+                                const j = JSON.parse(text);
+                                errMsg = j?.error?.message || j?.message || text;
+                            } catch {
+                                errMsg = text || errMsg;
+                            }
+                        } catch (e) {
+                            errMsg += ' (读取响应失败: ' + e.message + ')';
+                        }
+                        setStatus('错误：' + errMsg, 'error');
+                    }
+                } catch (err) {
+                    setStatus('网络错误：' + err.message, 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    loadingBar.classList.remove('active');
+                }
+            });
+        })();
+    </script>
 </body>
+
 </html>
