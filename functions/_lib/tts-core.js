@@ -196,26 +196,38 @@ function extractSilenceDuration(text) {
 
 /**
  * 构建 SSML 字符串
- * @param {string} text       朗读文本
- * @param {string} voiceName  如 "zh-CN-XiaoxiaoNeural"
- * @param {string} rate       如 "+0%"
- * @param {string} pitch      如 "+0%"
- * @param {string} volume     如 "+0%"
- * @param {string} style      风格，如 "general"
- * @param {number} silence    末尾静音毫秒
+ * @param {string} text         朗读文本
+ * @param {string} voiceName    如 "zh-CN-XiaoxiaoNeural"
+ * @param {string} rate         如 "+0%"
+ * @param {string} pitch        如 "+0%"
+ * @param {string} volume       如 "+0%"
+ * @param {string} style        风格，如 "general"
+ * @param {number} silence      末尾静音毫秒
+ * @param {number|undefined} styleDegree  风格强度 0.01~2.0，undefined 时使用默认值
  * @returns {string}
  */
-function getSsml(text, voiceName, rate, pitch, volume, style, silence) {
+function getSsml(text, voiceName, rate, pitch, volume, style, silence, styleDegree) {
     const cleanText = text.replace(/\[(\d+)\]\s*?$/, '');
     const langParts = voiceName.split('-');
     const lang = `${langParts[0]}-${langParts[1]}`;
 
+    // 构建 mstts:express-as 开标签（可携带 styledegree 属性）
+    let expressAsOpen = '';
+    let expressAsClose = '';
+    if (style && style !== 'general') {
+        const degreeAttr = (styleDegree !== undefined && styleDegree !== null)
+            ? ` styledegree="${Number(styleDegree).toFixed(2)}"`
+            : '';
+        expressAsOpen = `<mstts:express-as style="${style}"${degreeAttr}>`;
+        expressAsClose = '</mstts:express-as>';
+    }
+
     return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="${lang}">
         <voice name="${voiceName}">
             <prosody rate="${rate}" pitch="${pitch}" volume="${volume}">
-                ${style ? `<mstts:express-as style="${style}">` : ''}
+                ${expressAsOpen}
                 ${cleanText}
-                ${style ? '</mstts:express-as>' : ''}
+                ${expressAsClose}
                 ${silence > 0 ? `<break time="${silence}ms"/>` : ''}
             </prosody>
         </voice>
@@ -371,10 +383,11 @@ export async function getEndpoint() {
  * @param {string} pitch
  * @param {string} volume
  * @param {string} style
- * @param {string} outputFormat  如 "audio-24khz-48kbitrate-mono-mp3"
+ * @param {string} outputFormat      如 "audio-24khz-48kbitrate-mono-mp3"
+ * @param {number|undefined} styleDegree  风格强度 0.01~2.0
  * @returns {Promise<Blob>}
  */
-async function getAudioChunk(text, voiceName, rate, pitch, volume, style, outputFormat) {
+async function getAudioChunk(text, voiceName, rate, pitch, volume, style, outputFormat, styleDegree) {
     const endpoint = await getEndpoint();
     const url = `https://${endpoint.r}.tts.speech.microsoft.com/cognitiveservices/v1`;
     const silence = extractSilenceDuration(text);
@@ -388,7 +401,7 @@ async function getAudioChunk(text, voiceName, rate, pitch, volume, style, output
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0',
             'X-Microsoft-OutputFormat': outputFormat,
         },
-        body: getSsml(text, voiceName, rate, pitch, volume, style, silence),
+        body: getSsml(text, voiceName, rate, pitch, volume, style, silence, styleDegree),
     });
 
     if (!response.ok) {
@@ -401,19 +414,20 @@ async function getAudioChunk(text, voiceName, rate, pitch, volume, style, output
 
 /**
  * 合成完整语音（自动按换行分段并行请求，最后拼接）
- * @param {string} text         要合成的全文本
- * @param {string} voiceName    语音名称
- * @param {string} rate         语速偏移，如 "+0%"
- * @param {string} pitch        音调偏移，如 "+0%"
- * @param {string} volume       音量偏移，如 "+0%"
- * @param {string} style        风格，如 "general"
- * @param {string} outputFormat 音频格式
+ * @param {string} text              要合成的全文本
+ * @param {string} voiceName         语音名称
+ * @param {string} rate              语速偏移，如 "+0%"
+ * @param {string} pitch             音调偏移，如 "+0%"
+ * @param {string} volume            音量偏移，如 "+0%"
+ * @param {string} style             风格，如 "general"
+ * @param {string} outputFormat      音频格式
+ * @param {number|undefined} styleDegree  风格强度 0.01~2.0，可选
  * @returns {Promise<Response>} 包含音频数据的 Response
  */
-export async function getVoice(text, voiceName, rate, pitch, volume, style, outputFormat) {
+export async function getVoice(text, voiceName, rate, pitch, volume, style, outputFormat, styleDegree) {
     const chunks = text.trim().split('\n').filter(Boolean);
     const audioChunks = await Promise.all(
-        chunks.map(chunk => getAudioChunk(chunk, voiceName, rate, pitch, volume, style, outputFormat))
+        chunks.map(chunk => getAudioChunk(chunk, voiceName, rate, pitch, volume, style, outputFormat, styleDegree))
     );
 
     // 拼接所有音频片段

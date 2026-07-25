@@ -630,20 +630,19 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="style">情感风格 (部分角色支持)</label>
+                        <label for="style">情感风格 <span id="style-support-badge" style="font-size:11px; color:var(--text-3); font-weight:400;"></span></label>
                         <select id="style">
                             <option value="general">常规 (General)</option>
-                            <option value="cheerful">欢快 (Cheerful)</option>
-                            <option value="sad">悲伤 (Sad)</option>
-                            <option value="angry">生气 (Angry)</option>
-                            <option value="fearful">恐惧 (Fearful)</option>
-                            <option value="disgruntled">不满 (Disgruntled)</option>
-                            <option value="serious">严肃 (Serious)</option>
-                            <option value="affectionate">亲切 (Affectionate)</option>
-                            <option value="gentle">温和 (Gentle)</option>
-                            <option value="newscast">新闻播报 (Newscast)</option>
-                            <option value="poetry-reading">诗歌朗读 (Poetry)</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Style Degree -->
+                <div class="form-group" id="style-degree-group" style="display:none;">
+                    <label for="style-degree">风格强度 <span style="font-size:11px; color:var(--text-3); font-weight:400;">（0.01 ~ 2.0，仅风格非 general 时有效）</span></label>
+                    <div class="slider-wrap">
+                        <input id="style-degree" type="range" min="0.01" max="2.0" step="0.01" value="1.0" />
+                        <span class="slider-val" id="style-degree-val">1.0</span>
                     </div>
                 </div>
 
@@ -722,10 +721,11 @@
                         style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; margin-top:8px; overflow-x:auto; font-family: 'Menlo', 'Monaco', 'Consolas', monospace; font-size:12px; color:var(--text-2);">{
   "input": "要合成的文本 (必填)",
   "voice": "zh-CN-XiaoxiaoNeural (可选)",
-  "speed": 1.0,           // 语速 0.5 ~ 2.0
-  "pitch": 1.0,           // 音调 0.5 ~ 2.0
-  "volume": 1.0,          // 音量 0.1 ~ 2.0
-  "style": "general",     // 情感风格 (如 cheerful, sad)
+  "speed": 1.0,               // 语速 0.5 ~ 2.0
+  "pitch": 1.0,               // 音调 0.5 ~ 2.0
+  "volume": 1.0,              // 音量 0.1 ~ 2.0
+  "style": "general",         // 情感风格 (如 cheerful, sad)
+  "styleDegree": 1.0,         // 风格强度 0.01 ~ 2.0 (可选，默认 1.0)
   "format": "audio-24khz-48kbitrate-mono-mp3" // 音频格式
 }</pre>
                 </div>
@@ -746,6 +746,7 @@
                         <li><code>pitch</code>: 音调，0.5 ~ 2.0 (默认 1.0)</li>
                         <li><code>volume</code>: 音量，0.1 ~ 2.0 (默认 1.0)</li>
                         <li><code>style</code>: 情感风格 (如 general, cheerful, angry 等)</li>
+                        <li><code>styleDegree</code>: 风格强度，0.01 ~ 2.0 (可选，默认 1.0)</li>
                         <li><code>format</code>: 输出音频格式 (默认 24kHz MP3)</li>
                         <li><code>token</code>: API 密钥 (可选，支持直接在 URL 中鉴权)</li>
                     </ul>
@@ -763,6 +764,210 @@
 
     <script>
         (function () {
+            // ── 语音角色 → 支持的情感风格映射表 ──────────────────
+            // 数据来源：微软官方文档 language-support#voice-styles-and-roles
+            const STYLE_LABELS = {
+                'general':                   '常规 (General)',
+                'advertisement_upbeat':      '广告活力 (Advertisement Upbeat)',
+                'affectionate':              '亲切 (Affectionate)',
+                'angry':                     '愤怒 (Angry)',
+                'assistant':                 '助理 (Assistant)',
+                'calm':                      '平静 (Calm)',
+                'chat':                      '闲聊 (Chat)',
+                'chat-casual':               '轻松闲聊 (Chat Casual)',
+                'cheerful':                  '欢快 (Cheerful)',
+                'customerservice':           '客服 (Customer Service)',
+                'depressed':                 '沮丧 (Depressed)',
+                'disgruntled':               '不满 (Disgruntled)',
+                'documentary-narration':     '纪录片解说 (Documentary)',
+                'embarrassed':               '尴尬 (Embarrassed)',
+                'empathetic':                '共情 (Empathetic)',
+                'envious':                   '羡慕 (Envious)',
+                'excited':                   '兴奋 (Excited)',
+                'fearful':                   '恐惧 (Fearful)',
+                'friendly':                  '友好 (Friendly)',
+                'gentle':                    '温和 (Gentle)',
+                'hopeful':                   '希望 (Hopeful)',
+                'lyrical':                   '抒情 (Lyrical)',
+                'narration-professional':    '专业旁白 (Narration Professional)',
+                'narration-relaxed':         '轻松旁白 (Narration Relaxed)',
+                'newscast':                  '新闻播报 (Newscast)',
+                'newscast-casual':           '轻松新闻 (Newscast Casual)',
+                'newscast-formal':           '正式新闻 (Newscast Formal)',
+                'poetry-reading':            '诗歌朗读 (Poetry)',
+                'sad':                       '悲伤 (Sad)',
+                'serious':                   '严肃 (Serious)',
+                'shouting':                  '呼喊 (Shouting)',
+                'sports_commentary':         '体育解说 (Sports Commentary)',
+                'sports_commentary_excited': '激情体育 (Sports Commentary Excited)',
+                'whispering':                '低语 (Whispering)',
+                'terrified':                 '惊恐 (Terrified)',
+                'unfriendly':                '冷漠 (Unfriendly)',
+            };
+
+            // 语音角色的风格支持表（按微软官方文档整理）
+            // 未列出的角色表示只支持 general
+            const VOICE_STYLES = {
+                // ── 中文普通话 ──
+                'zh-CN-XiaoxiaoNeural': [
+                    'general','assistant','chat','customerservice','newscast',
+                    'affectionate','angry','calm','cheerful','disgruntled',
+                    'embarrassed','empathetic','fearful','gentle','lyrical',
+                    'sad','serious','poetry-reading',
+                ],
+                'zh-CN-XiaoyiNeural': [
+                    'general','angry','cheerful','disgruntled','embarrassed',
+                    'fearful','gentle','sad','serious',
+                ],
+                'zh-CN-XiaochenNeural': [
+                    'general',
+                ],
+                'zh-CN-XiaohanNeural': [
+                    'general','angry','calm','cheerful','disgruntled',
+                    'embarrassed','fearful','gentle','sad','serious',
+                ],
+                'zh-CN-XiaomengNeural': [
+                    'general','chat',
+                ],
+                'zh-CN-XiaomoNeural': [
+                    'general','angry','calm','cheerful','depressed',
+                    'disgruntled','embarrassed','envious','fearful',
+                    'gentle','sad','serious',
+                ],
+                'zh-CN-XiaoqiuNeural': [
+                    'general',
+                ],
+                'zh-CN-XiaoruiNeural': [
+                    'general','angry','calm','fearful','sad',
+                ],
+                'zh-CN-XiaoshuangNeural': [
+                    'general','chat',
+                ],
+                'zh-CN-XiaoxuanNeural': [
+                    'general','angry','calm','cheerful','depressed',
+                    'disgruntled','fearful','gentle','serious',
+                ],
+                'zh-CN-XiaoyanNeural': [
+                    'general',
+                ],
+                'zh-CN-XiaoyouNeural': [
+                    'general',
+                ],
+                'zh-CN-XiaozhenNeural': [
+                    'general','angry','cheerful','disgruntled',
+                    'fearful','sad','serious',
+                ],
+                'zh-CN-XiaominNeural': [
+                    'general',
+                ],
+                'zh-CN-XiaorouNeural': [
+                    'general',
+                ],
+                'zh-CN-YunxiNeural': [
+                    'general','angry','assistant','chat','cheerful',
+                    'depressed','disgruntled','embarrassed','fearful',
+                    'narration-relaxed','newscast','sad','serious',
+                ],
+                'zh-CN-YunyangNeural': [
+                    'general','customerservice','narration-professional',
+                    'newscast-casual',
+                ],
+                'zh-CN-YunjianNeural': [
+                    'general','angry','cheerful','depressed','disgruntled',
+                    'documentary-narration','narration-relaxed','sad','serious',
+                    'sports_commentary','sports_commentary_excited',
+                ],
+                'zh-CN-YunfengNeural': [
+                    'general','angry','cheerful','depressed','disgruntled',
+                    'fearful','sad','serious',
+                ],
+                'zh-CN-YunhaoNeural': [
+                    'general','advertisement_upbeat',
+                ],
+                'zh-CN-YunxiaNeural': [
+                    'general',
+                ],
+                'zh-CN-YunyeNeural': [
+                    'general','angry','calm','cheerful','disgruntled',
+                    'embarrassed','fearful','sad','serious',
+                ],
+                'zh-CN-YunzeNeural': [
+                    'general','angry','assistant','calm','chat',
+                    'cheerful','depressed','disgruntled','documentary-narration',
+                    'fearful','friendly','lyrical','newscast-casual',
+                    'newscast-formal','sad','serious','shouting',
+                    'terrified','unfriendly','whispering',
+                ],
+                'zh-CN-YunjieNeural': [
+                    'general',
+                ],
+                'zh-CN-YundongNeural': [
+                    'general',
+                ],
+                // ── 方言 ──
+                'zh-CN-liaoning-XiaobeiNeural': ['general'],
+                'zh-CN-liaoning-YunbiaoNeural': ['general'],
+                'zh-CN-shaanxi-XiaoniNeural': ['general'],
+                'zh-CN-shandong-YunxiangNeural': ['general'],
+                'zh-CN-sichuan-YunxiNeural': ['general'],
+                'zh-CN-guangxi-YunqiNeural': ['general'],
+                'zh-CN-henan-YundengNeural': ['general'],
+                // ── 香港 (粤语) ──
+                'zh-HK-HiuGaaiNeural': ['general'],
+                'zh-HK-HiuMaanNeural': ['general'],
+                'zh-HK-WanLungNeural': ['general'],
+                // ── 台湾 ──
+                'zh-TW-HsiaoChenNeural': ['general'],
+                'zh-TW-HsiaoYuNeural': ['general'],
+                'zh-TW-YunJheNeural': ['general'],
+                // ── 多语言 ──
+                'zh-CN-XiaoxiaoMultilingualNeural': [
+                    'general','calm','chat','cheerful','lyrical',
+                    'narration-professional','newscast','poetry-reading',
+                    'sad','serious','affectionate','angry',
+                ],
+                'zh-CN-XiaoxiaoDialectsNeural': ['general'],
+                'zh-CN-XiaochenMultilingualNeural': ['general'],
+                'zh-CN-XiaoyuMultilingualNeural': ['general'],
+                'zh-CN-YunyiMultilingualNeural': [
+                    'general','calm','chat','cheerful','newscast',
+                    'angry','affectionate','sad',
+                ],
+                'zh-CN-YunfanMultilingualNeural': ['general'],
+                'zh-CN-YunxiaoMultilingualNeural': ['general'],
+                // ── 英文 ──
+                'en-US-JennyNeural': [
+                    'general','assistant','chat','customerservice',
+                    'newscast','angry','cheerful','empathetic',
+                    'excited','friendly','hopeful','sad','shouting',
+                    'terrified','unfriendly','whispering',
+                ],
+                'en-US-GuyNeural': [
+                    'general','newscast','angry','cheerful',
+                    'excited','friendly','hopeful','sad',
+                    'shouting','terrified','unfriendly','whispering',
+                ],
+                'en-US-AriaNeural': [
+                    'general','chat','customerservice','empathetic',
+                    'narration-professional','newscast-casual','newscast-formal',
+                    'cheerful','angry','hopeful','sad','shouting',
+                    'terrified','unfriendly','whispering',
+                ],
+                'en-US-DavisNeural': [
+                    'general','chat','angry','cheerful','excited',
+                    'friendly','hopeful','sad','shouting',
+                    'terrified','unfriendly','whispering',
+                ],
+                // ── 日文 ──
+                'ja-JP-NanamiNeural': [
+                    'general','chat','customerservice','cheerful',
+                ],
+                'ja-JP-KeitaNeural': ['general'],
+                // ── 韩文 ──
+                'ko-KR-SunHiNeural': ['general'],
+                'ko-KR-InJoonNeural': ['general'],
+            };
+
             const form = document.getElementById('tts-form');
             const submitBtn = document.getElementById('submit-btn');
             const loadingBar = document.getElementById('loading-bar');
@@ -777,6 +982,64 @@
             const speedVal = document.getElementById('speed-val');
             const pitchVal = document.getElementById('pitch-val');
             const volumeVal = document.getElementById('volume-val');
+            const voiceSelect = document.getElementById('voice');
+            const styleSelect = document.getElementById('style');
+            const styleBadge = document.getElementById('style-support-badge');
+            const styleDegreeGroup = document.getElementById('style-degree-group');
+            const styleDegreeSlider = document.getElementById('style-degree');
+            const styleDegreeVal = document.getElementById('style-degree-val');
+
+            // ── 根据选中角色更新情感风格列表 ─────────────
+            function updateStyleOptions() {
+                const voice = voiceSelect.value;
+                const styles = VOICE_STYLES[voice] || ['general'];
+                const prevStyle = styleSelect.value;
+
+                // 清空并重建选项
+                styleSelect.innerHTML = '';
+                styles.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = STYLE_LABELS[s] || s;
+                    styleSelect.appendChild(opt);
+                });
+
+                // 尽量保留之前选中的风格
+                if (styles.includes(prevStyle)) {
+                    styleSelect.value = prevStyle;
+                } else {
+                    styleSelect.value = 'general';
+                }
+
+                // 更新徽章
+                if (styles.length <= 1) {
+                    styleBadge.textContent = '（此角色不支持风格切换）';
+                    styleBadge.style.color = 'var(--text-3)';
+                } else {
+                    styleBadge.textContent = `（${styles.length} 种风格）`;
+                    styleBadge.style.color = 'var(--accent-2)';
+                }
+
+                // 更新风格强度滑块显示
+                updateStyleDegreeVisibility();
+            }
+
+            function updateStyleDegreeVisibility() {
+                const style = styleSelect.value;
+                if (style && style !== 'general') {
+                    styleDegreeGroup.style.display = 'block';
+                } else {
+                    styleDegreeGroup.style.display = 'none';
+                }
+            }
+
+            // 初始化风格列表
+            updateStyleOptions();
+
+            // 角色变更时更新风格
+            voiceSelect.addEventListener('change', updateStyleOptions);
+            // 风格变更时更新强度滑块显示
+            styleSelect.addEventListener('change', updateStyleDegreeVisibility);
 
             // ── Slider labels ──────────────────────────
             speedSlider.addEventListener('input', () => {
@@ -787,6 +1050,9 @@
             });
             volumeSlider.addEventListener('input', () => {
                 volumeVal.textContent = parseFloat(volumeSlider.value).toFixed(1) + 'x';
+            });
+            styleDegreeSlider.addEventListener('input', () => {
+                styleDegreeVal.textContent = parseFloat(styleDegreeSlider.value).toFixed(2);
             });
 
             // ── Helper: set status ────────────────────
@@ -809,7 +1075,8 @@
                 const speed = parseFloat(speedSlider.value);
                 const pitch = parseFloat(pitchSlider.value);
                 const volume = parseFloat(volumeSlider.value);
-                const style = document.getElementById('style').value;
+                const style = styleSelect.value;
+                const styleDegree = style !== 'general' ? parseFloat(styleDegreeSlider.value) : undefined;
                 const format = document.getElementById('format').value;
                 const apiToken = document.getElementById('api-token').value.trim();
 
@@ -831,7 +1098,7 @@
                     const res = await fetch('/v1/audio/speech', {
                         method: 'POST',
                         headers,
-                        body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch, volume, style, format }),
+                        body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch, volume, style, styleDegree, format }),
                     });
 
                     if (res.ok) {

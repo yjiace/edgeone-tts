@@ -3,7 +3,7 @@
  * 路由：POST /v1/audio/speech
  *
  * 接收 JSON body，兼容 OpenAI TTS API 格式：
- *   { model, input, voice, speed, pitch }
+ *   { model, input, voice, speed, pitch, volume, style, styleDegree, format }
  */
 
 import {
@@ -46,6 +46,7 @@ async function handlePost(context) {
         pitch = DEFAULT_PITCH,
         volume = DEFAULT_VOLUME,
         style = DEFAULT_STYLE,
+        styleDegree,
         format = DEFAULT_FORMAT
     } = body;
 
@@ -58,6 +59,9 @@ async function handlePost(context) {
         validateParameterRange('speed', speed, 0.5, 2.0);
         validateParameterRange('pitch', pitch, 0.5, 2.0);
         validateParameterRange('volume', volume, 0.1, 2.0);
+        if (styleDegree !== undefined && styleDegree !== null) {
+            validateParameterRange('styleDegree', parseFloat(styleDegree), 0.01, 2.0);
+        }
     } catch (err) {
         return createErrorResponse(err.message, 'invalid_parameter', 400);
     }
@@ -71,7 +75,8 @@ async function handlePost(context) {
             pitchToString(pitch),
             volumeToString(volume),
             style,
-            format
+            format,
+            styleDegree !== undefined && styleDegree !== null ? parseFloat(styleDegree) : undefined
         );
     } catch (err) {
         console.error('[speech/index] TTS error:', err);
@@ -103,12 +108,17 @@ async function handleGet(context) {
     const volume = parseFloat(url.searchParams.get('volume') || String(DEFAULT_VOLUME));
     const style = url.searchParams.get('style') || DEFAULT_STYLE;
     const format = url.searchParams.get('format') || DEFAULT_FORMAT;
+    const styleDegreeRaw = url.searchParams.get('styleDegree') || url.searchParams.get('style_degree');
+    const styleDegree = styleDegreeRaw ? parseFloat(styleDegreeRaw) : undefined;
 
     // 参数校验
     try {
         validateParameterRange('speed', speed, 0.5, 2.0);
         validateParameterRange('pitch', pitch, 0.5, 2.0);
         validateParameterRange('volume', volume, 0.1, 2.0);
+        if (styleDegree !== undefined) {
+            validateParameterRange('styleDegree', styleDegree, 0.01, 2.0);
+        }
     } catch (err) {
         return createErrorResponse(err.message, 'invalid_parameter', 400);
     }
@@ -122,7 +132,8 @@ async function handleGet(context) {
             pitchToString(pitch),
             volumeToString(volume),
             style,
-            format
+            format,
+            styleDegree
         );
     } catch (err) {
         console.error('[speech/index GET] TTS error:', err);
