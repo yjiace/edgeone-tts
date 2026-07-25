@@ -4,11 +4,99 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EdgeOne TTS — 文本转语音</title>
-    <meta name="description" content="基于 EdgeOne Pages Functions 和微软 Edge TTS 构建的文本转语音服务，支持多种中英文语音、语速和音调调节。" />
+    
+    <!-- Primary Meta Tags (SEO) -->
+    <title>EdgeOne TTS — 免费在线文本转语音工具 | 微软 Edge TTS 边缘节点合成</title>
+    <meta name="title" content="EdgeOne TTS — 免费在线文本转语音工具 | 微软 Edge TTS 边缘节点合成" />
+    <meta name="description" content="基于腾讯 EdgeOne 边缘节点与微软 Edge TTS 驱动的免费在线文本转语音 (TTS) 服务。支持晓晓、云希等数十种中英文、方言与多语言语音，提供语速、音控、情感风格调节与标准 API 接口。" />
+    <meta name="keywords" content="EdgeOne TTS, 文本转语音, Edge TTS, 语音合成, 微软TTS, 晓晓, 云希, 在线TTS, 朗读软件, TTS API, 免费TTS, 配音工具, 阅读APP朗读" />
+    <meta name="author" content="EdgeOne TTS" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Chinese" />
+    <link rel="canonical" href="https://edgeone-tts.pages.dev/" />
+
+    <!-- Open Graph / Facebook (SEO & Social Sharing) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://edgeone-tts.pages.dev/" />
+    <meta property="og:title" content="EdgeOne TTS — 免费在线文本转语音工具" />
+    <meta property="og:description" content="基于 EdgeOne 边缘节点与微软 Edge TTS 驱动的高品质文本转语音服务。支持中英日韩多语言、情感风格切换及标准 API。" />
+    <meta property="og:site_name" content="EdgeOne TTS" />
+    <meta property="og:locale" content="zh_CN" />
+
+    <!-- Twitter Cards (SEO) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="EdgeOne TTS — 免费在线文本转语音工具" />
+    <meta name="twitter:description" content="基于 EdgeOne 边缘节点与微软 Edge TTS 驱动的高品质文本转语音服务。" />
+
+    <!-- Favicon / Touch Icon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
+
+    <!-- Fonts & Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- GEO & AI Search Schema (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://edgeone-tts.pages.dev/#webapp",
+          "url": "https://edgeone-tts.pages.dev/",
+          "name": "EdgeOne TTS",
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "All",
+          "browserRequirements": "Requires JavaScript. Requires HTML5.",
+          "description": "基于腾讯 EdgeOne Pages Functions 与微软 Edge TTS 构建的高性能边缘文本转语音 Web 应用，支持多国语言与情感合成。",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "微软 Edge Neural 神经自然语音合成",
+            "支持普通话、东北话、四川话、粤语、台湾话、英语、日语、韩语等",
+            "情感风格切换与风格强度调控",
+            "语速、音调、音量细粒度调节",
+            "兼容 OpenAI API / Legado 阅读 APP 的 RESTful 接口"
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://edgeone-tts.pages.dev/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "EdgeOne TTS 是什么？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "EdgeOne TTS 是一个部署于腾讯 EdgeOne 边缘节点上的免费文本转语音 (TTS) 服务，核心由微软 Edge Neural 语音引擎驱动，提供毫秒级响应的高品质语音合成。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "EdgeOne TTS 是否免费使用？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "是的，EdgeOne TTS 完全免费提供在线试听合成与 API 接口调用服务。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "如何在第三方阅读软件 (如 Legado 阅读) 中配置 API？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "支持 GET 和 POST 请求接口。如在阅读 APP 中，可将 TTS URL 设置为 /v1/audio/speech?text={{title}}&voice=zh-CN-YunxiNeural 形式使用。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
     <style>
         /* ── Theme Tokens ─────────────────────────── */
         :root {
@@ -235,7 +323,7 @@
 
         input:checked + .switch-slider::before {
             transform: translateX(26px);
-            background-color: #f59e0b; /* Warm Sun color */
+            background-color: #f59e0b;
             box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
         }
 
@@ -276,7 +364,6 @@
                 padding-right: 6px;
             }
 
-            /* Custom Scrollbar for Right Column */
             .col-right::-webkit-scrollbar {
                 width: 6px;
             }
@@ -714,6 +801,36 @@
             text-align: right;
         }
 
+        /* SEO & GEO Features Section */
+        .features-faq-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+        }
+
+        .feature-box h2 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-1);
+            margin-bottom: 6px;
+        }
+
+        .feature-box p {
+            font-size: 12px;
+            color: var(--text-2);
+            line-height: 1.5;
+        }
+
         /* Footer */
         .footer {
             text-align: center;
@@ -852,10 +969,10 @@
     <div class="page">
 
         <!-- Header -->
-        <header class="header">
+        <header class="header" role="banner">
             <div class="header-left">
                 <div class="logo-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-label="Logo">
                         <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" />
                     </svg>
                 </div>
@@ -867,7 +984,7 @@
 
             <!-- Header Right Actions: API Doc Question Icon & Switch Toggle -->
             <div class="header-actions">
-                <button id="api-doc-btn" class="icon-btn" title="API 接口文档">
+                <button id="api-doc-btn" class="icon-btn" title="API 接口文档" aria-label="查看 API 接口文档">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -877,7 +994,7 @@
 
                 <!-- Theme Switch Toggle -->
                 <label class="theme-switch" title="切换暗色 / 浅色主题">
-                    <input type="checkbox" id="theme-toggle-checkbox">
+                    <input type="checkbox" id="theme-toggle-checkbox" aria-label="切换暗色/浅色主题">
                     <span class="switch-slider">
                         <span class="switch-icon moon">🌙</span>
                         <span class="switch-icon sun">☀️</span>
@@ -887,7 +1004,7 @@
         </header>
 
         <!-- Main Grid Layout -->
-        <div class="main-grid">
+        <main class="main-grid" role="main">
 
             <!-- ── Left Column: Secret, Text, Audio (Fixed Sticky Area) ── -->
             <div class="column col-left">
@@ -897,15 +1014,15 @@
                     <!-- Secret / API Key -->
                     <div class="card">
                         <div class="card-header" style="margin-bottom:8px;">
-                            <div class="card-title">
+                            <label for="api-token" class="card-title" style="cursor:pointer;">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
                                 </svg>
                                 API Key 密钥
-                            </div>
+                            </label>
                             <span class="input-hint" id="token-saved-hint">✓ 已实时保存到本地</span>
                         </div>
-                        <input id="api-token" type="password" placeholder="Bearer Token（留空表示无鉴权）" />
+                        <input id="api-token" type="password" placeholder="Bearer Token（留空表示无鉴权）" aria-label="API Key 密钥" />
                     </div>
 
                     <!-- Text Area & Submit -->
@@ -914,10 +1031,10 @@
                             <label for="text">
                                 输入合成文本 <span style="color:var(--error)">*</span>
                             </label>
-                            <textarea id="text" required placeholder="在此输入要朗读的文本，支持换行分段合成…">你好啊，亲爱的朋友们！欢迎使用 EdgeOne TTS 语音合成服务。</textarea>
+                            <textarea id="text" required placeholder="在此输入要朗读的文本，支持换行分段合成…" aria-label="输入合成文本">你好啊，亲爱的朋友们！欢迎使用 EdgeOne TTS 语音合成服务。</textarea>
                         </div>
 
-                        <button id="submit-btn" class="btn-primary" type="submit">
+                        <button id="submit-btn" class="btn-primary" type="submit" aria-label="生成语音">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
                             </svg>
@@ -939,9 +1056,9 @@
                                 </svg>
                                 合成结果播放
                             </div>
-                            <audio id="audio-player" controls preload="auto"></audio>
+                            <audio id="audio-player" controls preload="auto" aria-label="语音播放器"></audio>
                             <div>
-                                <a id="download-link" class="download-btn" download="tts-output.mp3">
+                                <a id="download-link" class="download-btn" download="tts-output.mp3" aria-label="下载音频文件">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z" />
                                     </svg>
@@ -970,7 +1087,7 @@
                     </div>
 
                     <!-- Category Tabs Nav -->
-                    <div class="tabs-nav" id="voice-tabs-nav"></div>
+                    <nav class="tabs-nav" id="voice-tabs-nav" aria-label="语音角色分类"></nav>
 
                     <!-- Voice Cards Grid -->
                     <div class="voice-grid" id="voice-grid"></div>
@@ -995,7 +1112,7 @@
                     <div class="form-group" id="style-degree-group" style="display:none; margin-top:16px;">
                         <label for="style-degree">风格强度</label>
                         <div class="slider-row">
-                            <input id="style-degree" type="range" min="0.01" max="2.0" step="0.01" value="1.0" />
+                            <input id="style-degree" type="range" min="0.01" max="2.0" step="0.01" value="1.0" aria-label="风格强度调节" />
                             <span class="slider-val" id="style-degree-val">1.00</span>
                         </div>
                     </div>
@@ -1015,7 +1132,7 @@
                         <div class="form-group">
                             <label for="speed">语速</label>
                             <div class="slider-row">
-                                <input id="speed" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+                                <input id="speed" type="range" min="0.5" max="2.0" step="0.1" value="1.0" aria-label="语速调节" />
                                 <span class="slider-val" id="speed-val">1.0x</span>
                             </div>
                         </div>
@@ -1024,7 +1141,7 @@
                         <div class="form-group">
                             <label for="pitch">音调</label>
                             <div class="slider-row">
-                                <input id="pitch" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+                                <input id="pitch" type="range" min="0.5" max="2.0" step="0.1" value="1.0" aria-label="音调调节" />
                                 <span class="slider-val" id="pitch-val">1.0x</span>
                             </div>
                         </div>
@@ -1033,7 +1150,7 @@
                         <div class="form-group">
                             <label for="volume">音量</label>
                             <div class="slider-row">
-                                <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" />
+                                <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" aria-label="音量调节" />
                                 <span class="slider-val" id="volume-val">1.0x</span>
                             </div>
                         </div>
@@ -1054,24 +1171,41 @@
 
             </div>
 
-        </div>
+        </main>
 
-        <footer class="footer">
+        <!-- SEO & GEO Semantic Features Area -->
+        <section class="features-faq-section" aria-label="产品特性与常见问题">
+            <div class="feature-box">
+                <h2>⚡ 边缘节点毫秒合成</h2>
+                <p>基于腾讯云 EdgeOne 边缘 Serverless Functions 构建，离用户最近的边缘节点极速响应，实现超低延迟文本转音频。</p>
+            </div>
+            <div class="feature-box">
+                <h2>🎙️ 微软 Neural 神经语音引擎</h2>
+                <p>内置微软 Edge TTS 强大自然神经发音，覆盖中英文普通话、方言（东北/四川/广东/台湾等）及日韩英多国语言。</p>
+            </div>
+            <div class="feature-box">
+                <h2>🔗 全兼容 REST API 接口</h2>
+                <p>提供标准的 POST 和 GET 接口，完美支持 Legado 阅读 APP、自建应用及第三方 AI 系统的直接无缝集成调用。</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer" role="contentinfo">
             Powered by Microsoft Edge TTS · EdgeOne Pages Functions · © 2024
         </footer>
     </div>
 
     <!-- ── API Docs Modal Window ────────────────────── -->
-    <div id="api-modal" class="modal-overlay">
+    <div id="api-modal" class="modal-overlay" role="dialog" aria-labelledby="modal-title" aria-modal="true">
         <div class="modal-card">
             <div class="modal-header">
-                <div class="card-title" style="font-size:1.1rem;">
+                <div class="card-title" id="modal-title" style="font-size:1.1rem;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent-2)">
                         <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
                     </svg>
                     API 接口使用说明
                 </div>
-                <button id="modal-close" class="modal-close-btn" title="关闭">&times;</button>
+                <button id="modal-close" class="modal-close-btn" title="关闭" aria-label="关闭">&times;</button>
             </div>
 
             <div class="api-block">
