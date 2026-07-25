@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 
 <head>
     <meta charset="UTF-8" />
@@ -8,36 +8,63 @@
     <meta name="description" content="基于 EdgeOne Pages Functions 和微软 Edge TTS 构建的文本转语音服务，支持多种中英文语音、语速和音调调节。" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        /* ── Reset & Base ─────────────────────────── */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* ── Theme Tokens ─────────────────────────── */
         :root {
-            --bg: #0d0f14;
-            --surface: #161922;
-            --surface-2: #1e222e;
-            --border: rgba(255, 255, 255, 0.07);
+            --bg: #0b0d12;
+            --surface: #141720;
+            --surface-2: #1c202d;
+            --surface-hover: #252b3c;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
             --accent: #6c63ff;
             --accent-2: #a78bfa;
             --accent-glow: rgba(108, 99, 255, 0.25);
-            --text-1: #f0f0f8;
+            --text-1: #f1f3f9;
             --text-2: #9ca3af;
             --text-3: #6b7280;
             --success: #34d399;
             --error: #f87171;
             --warning: #fbbf24;
             --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+            --chip-bg: #1c202d;
+            --chip-active-bg: rgba(108, 99, 255, 0.15);
+            --chip-active-border: #6c63ff;
+            --modal-bg: rgba(11, 13, 18, 0.75);
+        }
+
+        [data-theme="light"] {
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --surface-2: #f0f3f8;
+            --surface-hover: #e5ebf5;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(0, 0, 0, 0.16);
+            --accent: #5b50e6;
+            --accent-2: #7c3aed;
+            --accent-glow: rgba(91, 80, 230, 0.18);
+            --text-1: #1e222e;
+            --text-2: #4b5563;
+            --text-3: #9ca3af;
+            --success: #059669;
+            --error: #dc2626;
+            --warning: #d97706;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --chip-bg: #f0f3f8;
+            --chip-active-bg: rgba(91, 80, 230, 0.08);
+            --chip-active-border: #5b50e6;
+            --modal-bg: rgba(244, 246, 251, 0.75);
+        }
+
+        /* ── Reset & Base ─────────────────────────── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         html {
@@ -50,115 +77,274 @@
             color: var(--text-1);
             min-height: 100vh;
             line-height: 1.6;
-            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* ── Background glow ─────────────────────── */
+        /* Ambient Glow Background */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(ellipse 60% 40% at 20% 0%, rgba(108, 99, 255, 0.12) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 30% at 80% 100%, rgba(167, 139, 250, 0.08) 0%, transparent 60%);
+                radial-gradient(ellipse 60% 40% at 20% 0%, var(--accent-glow) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 30% at 80% 100%, var(--accent-glow) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* ── Layout ──────────────────────────────── */
+        /* ── Page Layout ─────────────────────────── */
         .page {
             position: relative;
             z-index: 1;
-            max-width: 720px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 48px 20px 80px;
+            padding: 24px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* ── Header ──────────────────────────────── */
         .header {
-            text-align: center;
-            margin-bottom: 48px;
-        }
-
-        .logo-badge {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            color: #fff;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 5px 14px;
-            border-radius: 999px;
+            justify-content: space-between;
             margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .logo-badge svg {
-            width: 14px;
-            height: 14px;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        h1 {
-            font-size: clamp(2rem, 5vw, 2.8rem);
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        .header-title-wrap h1 {
+            font-size: 1.35rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff 0%, var(--accent-2) 100%);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text-1) 30%, var(--accent-2) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
         }
 
-        .subtitle {
+        .header-title-wrap p {
+            font-size: 0.82rem;
             color: var(--text-2);
-            font-size: 1rem;
-            font-weight: 400;
         }
 
-        /* ── Card ────────────────────────────────── */
+        /* Header Right Actions */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--text-1);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .icon-btn:hover {
+            border-color: var(--accent);
+            background: var(--surface-2);
+            color: var(--accent-2);
+            transform: translateY(-1px);
+        }
+
+        /* ── Switch Toggle Style ─────────────────── */
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 30px;
+            user-select: none;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+        }
+
+        .switch-slider::before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px var(--accent-glow);
+            z-index: 2;
+        }
+
+        .switch-icon {
+            font-size: 12px;
+            z-index: 1;
+            transition: opacity 0.2s;
+        }
+
+        .switch-icon.sun { opacity: 0.4; }
+        .switch-icon.moon { opacity: 1; }
+
+        input:checked + .switch-slider {
+            background-color: var(--surface-2);
+            border-color: var(--border-hover);
+        }
+
+        input:checked + .switch-slider::before {
+            transform: translateX(26px);
+            background-color: #f59e0b; /* Warm Sun color */
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+        }
+
+        input:checked + .switch-slider .switch-icon.sun { opacity: 1; }
+        input:checked + .switch-slider .switch-icon.moon { opacity: 0.4; }
+
+        /* ── Grid Container ──────────────────────── */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 24px;
+            align-items: start;
+            flex: 1;
+        }
+
+        @media (max-width: 960px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ── Column Left Fixed (Sticky) ─────────── */
+        @media (min-width: 961px) {
+            .col-left {
+                position: sticky;
+                top: 20px;
+            }
+
+            .col-right {
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
+                padding-right: 6px;
+            }
+
+            /* Custom Scrollbar for Right Column */
+            .col-right::-webkit-scrollbar {
+                width: 6px;
+            }
+            .col-right::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .col-right::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 999px;
+            }
+            .col-right::-webkit-scrollbar-thumb:hover {
+                background: var(--border-hover);
+            }
+        }
+
+        /* ── Card Component ──────────────────────── */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 32px;
+            padding: 22px;
             box-shadow: var(--shadow);
+            transition: background 0.3s, border-color 0.3s;
         }
 
-        /* ── Form Groups ─────────────────────────── */
-        .form-grid {
-            display: grid;
-            gap: 22px;
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        .card-title svg {
+            color: var(--accent-2);
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        /* ── Form Inputs ─────────────────────────── */
         .form-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        label {
+        .form-group label {
             font-size: 13px;
             font-weight: 500;
             color: var(--text-2);
-            letter-spacing: 0.02em;
-        }
-
-        .input-wrap {
-            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         input[type="text"],
         input[type="password"],
-        input[type="number"],
-        select,
         textarea {
             width: 100%;
             background: var(--surface-2);
@@ -170,12 +356,9 @@
             padding: 11px 14px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            appearance: none;
-            -webkit-appearance: none;
         }
 
         input:focus,
-        select:focus,
         textarea:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
@@ -183,65 +366,30 @@
 
         textarea {
             resize: vertical;
-            min-height: 120px;
-            line-height: 1.7;
+            min-height: 150px;
+            line-height: 1.6;
         }
 
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 36px;
-        }
-
-        /* ── Range slider ────────────────────────── */
-        .slider-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .slider-wrap input[type="range"] {
-            flex: 1;
-            padding: 0;
-            height: 4px;
-            background: var(--surface-2);
-            border: none;
-            border-radius: 999px;
-            cursor: pointer;
-            accent-color: var(--accent);
-        }
-
-        .slider-val {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--accent-2);
-            min-width: 36px;
-            text-align: right;
-        }
-
-        /* ── Divider ─────────────────────────────── */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 4px 0;
-        }
-
-        /* ── Voice Group Tags ────────────────────── */
-        .optgroup-tag {
-            color: var(--text-3);
+        .input-hint {
             font-size: 11px;
+            color: var(--success);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        /* ── Submit button ───────────────────────── */
+        .input-hint.visible {
+            opacity: 1;
+        }
+
+        /* ── Submit Button ───────────────────────── */
         .btn-primary {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             width: 100%;
-            padding: 14px 24px;
-            background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
+            padding: 13px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
             color: #fff;
             font-family: inherit;
             font-size: 15px;
@@ -255,16 +403,9 @@
             overflow: hidden;
         }
 
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
-        }
-
         .btn-primary:hover:not(:disabled) {
-            opacity: 0.9;
-            box-shadow: 0 6px 24px var(--accent-glow);
+            opacity: 0.92;
+            box-shadow: 0 6px 20px var(--accent-glow);
         }
 
         .btn-primary:active:not(:disabled) {
@@ -276,10 +417,10 @@
             cursor: not-allowed;
         }
 
-        /* ── Loading ─────────────────────────────── */
+        /* ── Loading & Status ────────────────────── */
         .loading-bar {
             display: none;
-            height: 2px;
+            height: 3px;
             background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
             background-size: 200% 100%;
             border-radius: 999px;
@@ -287,13 +428,8 @@
         }
 
         @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .loading-bar.active {
@@ -305,70 +441,45 @@
             align-items: center;
             gap: 8px;
             font-size: 13px;
-            min-height: 20px;
+            min-height: 22px;
         }
 
         .status-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
 
         @keyframes pulse-dot {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.5;
-                transform: scale(0.7);
-            }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.75); }
         }
 
         .status-text {
             color: var(--text-2);
         }
+        .status-text.error { color: var(--error); }
+        .status-text.success { color: var(--success); }
 
-        .status-text.error {
-            color: var(--error);
-        }
-
-        .status-text.success {
-            color: var(--success);
-        }
-
-        /* ── Audio player ────────────────────────── */
+        /* ── Audio Player Section ────────────────── */
         .audio-section {
             display: none;
             flex-direction: column;
             gap: 12px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border);
         }
 
         .audio-section.visible {
             display: flex;
         }
 
-        .audio-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-3);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
         audio {
             width: 100%;
             border-radius: var(--radius-sm);
             outline: none;
-            accent-color: var(--accent);
         }
 
         .download-btn {
@@ -379,34 +490,302 @@
             font-weight: 500;
             color: var(--accent-2);
             text-decoration: none;
-            border: 1px solid rgba(167, 139, 250, 0.25);
+            border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             padding: 8px 16px;
+            background: var(--surface-2);
             transition: background 0.2s, border-color 0.2s;
         }
 
         .download-btn:hover {
-            background: rgba(167, 139, 250, 0.08);
+            background: var(--surface-hover);
             border-color: var(--accent-2);
         }
 
-        /* ── API docs section ────────────────────── */
-        .api-card {
+        /* ── Right Column: Settings Components ────── */
+        
+        /* Tab Navigation */
+        .tabs-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--surface-2);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            margin-bottom: 14px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            white-space: nowrap;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-2);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-1);
+        }
+
+        .tab-btn.active {
+            background: var(--surface);
+            color: var(--accent-2);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Voice Card Grid */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .voice-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px 12px;
+            background: var(--chip-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .voice-card:hover {
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+        }
+
+        .voice-card.active {
+            background: var(--chip-active-bg);
+            border-color: var(--chip-active-border);
+            box-shadow: 0 0 0 1px var(--chip-active-border);
+        }
+
+        .voice-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .voice-gender-tag {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .voice-gender-tag.female { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+        .voice-gender-tag.male { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+
+        .voice-desc {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 2px;
+        }
+
+        /* Chips Grid (for Styles & Formats) */
+        .chips-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip-btn {
+            padding: 7px 13px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-2);
+            background: var(--chip-bg);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-1);
+        }
+
+        .chip-btn.active {
+            background: var(--chip-active-bg);
+            border-color: var(--chip-active-border);
+            color: var(--accent-2);
+            font-weight: 600;
+        }
+
+        /* Format Card Grid */
+        .format-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .format-card {
+            padding: 10px 12px;
+            background: var(--chip-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .format-card:hover {
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+        }
+
+        .format-card.active {
+            background: var(--chip-active-bg);
+            border-color: var(--chip-active-border);
+            box-shadow: 0 0 0 1px var(--chip-active-border);
+        }
+
+        .format-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .format-badge {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent-2);
+        }
+
+        .format-desc {
+            font-size: 11px;
+            color: var(--text-3);
+        }
+
+        /* Range Slider Styling */
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .slider-row input[type="range"] {
+            flex: 1;
+            padding: 0;
+            height: 5px;
+            background: var(--surface-2);
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .slider-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-2);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 24px;
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        /* ── API Documentation Modal ────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--modal-bg);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 28px 32px;
-            margin-top: 24px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
         }
 
-        .api-card h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-1);
-            margin-bottom: 16px;
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-2);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            line-height: 1;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--text-1);
+            background: var(--surface-2);
         }
 
         .api-block {
@@ -414,7 +793,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             padding: 14px 16px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .api-method {
@@ -449,42 +828,22 @@
         }
 
         .api-desc {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--text-3);
-            margin-top: 6px;
+            line-height: 1.6;
         }
 
         code {
             font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
             font-size: 12px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 4px;
             padding: 2px 6px;
             color: var(--accent-2);
         }
 
-        /* ── Footer ──────────────────────────────── */
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 12px;
-            color: var(--text-3);
-        }
-
-        /* ── Responsive ──────────────────────────── */
-        @media (max-width: 560px) {
-            .page {
-                padding: 28px 16px 60px;
-            }
-
-            .card,
-            .api-card {
-                padding: 22px 18px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        [data-theme="light"] code {
+            background: rgba(0, 0, 0, 0.06);
         }
     </style>
 </head>
@@ -494,267 +853,207 @@
 
         <!-- Header -->
         <header class="header">
-            <div class="logo-badge">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" />
-                </svg>
-                EdgeOne TTS
-            </div>
-            <h1>文本转语音</h1>
-            <p class="subtitle">由 Microsoft Edge TTS 驱动 · 运行于腾讯 EdgeOne 边缘节点</p>
-        </header>
-
-        <!-- Main card -->
-        <div class="card">
-            <form id="tts-form" class="form-grid" autocomplete="off">
-
-                <!-- API Token -->
-                <div class="form-group">
-                    <label for="api-token">API Token（如已设置环境变量）</label>
-                    <input id="api-token" type="password" placeholder="Bearer token，留空则无需鉴权" />
-                </div>
-
-                <div class="divider"></div>
-
-                <!-- Text -->
-                <div class="form-group">
-                    <label for="text">输入文本 <span style="color:var(--error)">*</span></label>
-                    <textarea id="text" required
-                        placeholder="在此输入要朗读的文本，支持换行分段合成…">你好啊，亲爱的朋友们！欢迎使用 EdgeOne TTS 服务。</textarea>
-                </div>
-
-                <!-- Voice -->
-                <div class="form-group">
-                    <label for="voice">语音角色</label>
-                    <select id="voice">
-                        <optgroup label="── 中文普通话 ──">
-                            <option value="zh-CN-XiaoxiaoNeural">晓晓（女）</option>
-                            <option value="zh-CN-XiaoyiNeural">晓伊（女）</option>
-                            <option value="zh-CN-XiaochenNeural">晓辰（女）</option>
-                            <option value="zh-CN-XiaohanNeural">晓涵（女）</option>
-                            <option value="zh-CN-XiaomengNeural">晓梦（女）</option>
-                            <option value="zh-CN-XiaomoNeural">晓墨（女）</option>
-                            <option value="zh-CN-XiaoqiuNeural">晓秋（女）</option>
-                            <option value="zh-CN-XiaoruiNeural">晓睿（女）</option>
-                            <option value="zh-CN-XiaoshuangNeural">晓双（女）</option>
-                            <option value="zh-CN-XiaoxuanNeural">晓萱（女）</option>
-                            <option value="zh-CN-XiaoyanNeural">晓颜（女）</option>
-                            <option value="zh-CN-XiaoyouNeural">晓悠（女）</option>
-                            <option value="zh-CN-XiaozhenNeural">晓甄（女）</option>
-                            <option value="zh-CN-XiaominNeural">晓敏（女）</option>
-                            <option value="zh-CN-XiaorouNeural">晓柔（女）</option>
-                            <option value="zh-CN-YunxiNeural">云希（男）</option>
-                            <option value="zh-CN-YunyangNeural">云扬（男）</option>
-                            <option value="zh-CN-YunjianNeural">云健（男）</option>
-                            <option value="zh-CN-YunfengNeural">云枫（男）</option>
-                            <option value="zh-CN-YunhaoNeural">云皓（男）</option>
-                            <option value="zh-CN-YunxiaNeural">云夏（男）</option>
-                            <option value="zh-CN-YunyeNeural">云野（男）</option>
-                            <option value="zh-CN-YunzeNeural">云泽（男）</option>
-                            <option value="zh-CN-YunjieNeural">云杰（男）</option>
-                            <option value="zh-CN-YundongNeural">云东（男）</option>
-                            <option value="zh-CN-HuihuiNeural">慧慧（女）</option>
-                            <option value="zh-CN-KangkangNeural">康康（男）</option>
-                            <option value="zh-CN-YaoyaoNeural">瑶瑶（女）</option>
-                        </optgroup>
-                        <optgroup label="── 方言 ──">
-                            <option value="zh-CN-liaoning-XiaobeiNeural">晓北(辽宁/东北话)</option>
-                            <option value="zh-CN-liaoning-YunbiaoNeural">云彪(辽宁)</option>
-                            <option value="zh-CN-shaanxi-XiaoniNeural">晓妮(陕西话)</option>
-                            <option value="zh-CN-shandong-YunxiangNeural">云翔(山东话)</option>
-                            <option value="zh-CN-sichuan-YunxiNeural">云希(四川话)</option>
-                            <option value="zh-CN-guangxi-YunqiNeural">云奇(广西)</option>
-                            <option value="zh-CN-henan-YundengNeural">云登(河南)</option>
-                        </optgroup>
-                        <optgroup label="── 香港 (粤语) ──">
-                            <option value="zh-HK-HiuGaaiNeural">晓佳(粤语)</option>
-                            <option value="zh-HK-HiuMaanNeural">晓曼(香港)</option>
-                            <option value="zh-HK-WanLungNeural">云龙(香港)</option>
-                        </optgroup>
-                        <optgroup label="── 台湾 ──">
-                            <option value="zh-TW-HsiaoChenNeural">晓辰(台湾)</option>
-                            <option value="zh-TW-HsiaoYuNeural">晓雨(台湾)</option>
-                            <option value="zh-TW-YunJheNeural">云哲(台湾)</option>
-                        </optgroup>
-                        <optgroup label="── 多语言 ──">
-                            <option value="zh-CN-XiaoxiaoMultilingualNeural">晓晓(多语言)</option>
-                            <option value="zh-CN-XiaoxiaoDialectsNeural">晓晓(方言)</option>
-                            <option value="zh-CN-XiaochenMultilingualNeural">晓晨(多语言)</option>
-                            <option value="zh-CN-XiaoyuMultilingualNeural">晓宇(多语言)</option>
-                            <option value="zh-CN-YunyiMultilingualNeural">云一(多语言)</option>
-                            <option value="zh-CN-YunfanMultilingualNeural">云凡(多语言)</option>
-                            <option value="zh-CN-YunxiaoMultilingualNeural">云晓(多语言)</option>
-                        </optgroup>
-                        <optgroup label="── 英文 ──">
-                            <option value="en-US-JennyNeural">Jenny — 英文女声</option>
-                            <option value="en-US-GuyNeural">Guy — 英文男声</option>
-                            <option value="en-US-AriaNeural">Aria — 英文女声</option>
-                            <option value="en-US-DavisNeural">Davis — 英文男声</option>
-                        </optgroup>
-                        <optgroup label="── 日文 ──">
-                            <option value="ja-JP-NanamiNeural">Nanami — 日文女声</option>
-                            <option value="ja-JP-KeitaNeural">Keita — 日文男声</option>
-                        </optgroup>
-                        <optgroup label="── 韩文 ──">
-                            <option value="ko-KR-SunHiNeural">Sun-Hi — 韩文女声</option>
-                            <option value="ko-KR-InJoonNeural">InJoon — 韩文男声</option>
-                        </optgroup>
-                    </select>
-                </div>
-
-                <!-- Speed & Pitch -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="speed">语速</label>
-                        <div class="slider-wrap">
-                            <input id="speed" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
-                            <span class="slider-val" id="speed-val">1.0x</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="pitch">音调</label>
-                        <div class="slider-wrap">
-                            <input id="pitch" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
-                            <span class="slider-val" id="pitch-val">1.0x</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Volume & Style -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="volume">音量</label>
-                        <div class="slider-wrap">
-                            <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" />
-                            <span class="slider-val" id="volume-val">1.0x</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="style">情感风格 <span id="style-support-badge" style="font-size:11px; color:var(--text-3); font-weight:400;"></span></label>
-                        <select id="style">
-                            <option value="general">常规 (General)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Style Degree -->
-                <div class="form-group" id="style-degree-group" style="display:none;">
-                    <label for="style-degree">风格强度 <span style="font-size:11px; color:var(--text-3); font-weight:400;">（0.01 ~ 2.0，仅风格非 general 时有效）</span></label>
-                    <div class="slider-wrap">
-                        <input id="style-degree" type="range" min="0.01" max="2.0" step="0.01" value="1.0" />
-                        <span class="slider-val" id="style-degree-val">1.0</span>
-                    </div>
-                </div>
-
-                <!-- Format -->
-                <div class="form-group">
-                    <label for="format">输出格式</label>
-                    <select id="format">
-                        <option value="audio-24khz-48kbitrate-mono-mp3">MP3 - 24kHz 48kbps (默认, 兼容性好)</option>
-                        <option value="audio-24khz-96kbitrate-mono-mp3">MP3 - 24kHz 96kbps</option>
-                        <option value="audio-48khz-96kbitrate-mono-mp3">MP3 - 48kHz 96kbps (高音质)</option>
-                        <option value="audio-48khz-192kbitrate-mono-mp3">MP3 - 48kHz 192kbps (超高音质)</option>
-                        <option value="riff-24khz-16bit-mono-pcm">WAV - 24kHz PCM (无损)</option>
-                        <option value="riff-48khz-16bit-mono-pcm">WAV - 48kHz PCM (超高音质无损)</option>
-                        <option value="ogg-24khz-16bit-mono-opus">OGG - 24kHz Opus</option>
-                        <option value="webm-24khz-16bit-mono-opus">WebM - 24kHz Opus</option>
-                    </select>
-                </div>
-
-                <!-- Submit -->
-                <button id="submit-btn" class="btn-primary" type="submit">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-                    </svg>
-                    生成语音
-                </button>
-
-            </form>
-
-            <!-- Loading bar -->
-            <div id="loading-bar" class="loading-bar" style="margin-top:16px"></div>
-
-            <!-- Status -->
-            <div class="status-row" style="margin-top:12px" id="status-row">
-                <div class="status-dot" id="status-dot" style="display:none"></div>
-                <span class="status-text" id="status-text"></span>
-            </div>
-
-            <!-- Audio output -->
-            <div class="audio-section" id="audio-section" style="margin-top:16px">
-                <div class="audio-label">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" />
                     </svg>
-                    合成结果
                 </div>
-                <audio id="audio-player" controls preload="auto"></audio>
-                <div>
-                    <a id="download-link" class="download-btn" download="tts-output.mp3">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z" />
+                <div class="header-title-wrap">
+                    <h1>EdgeOne TTS 语音合成</h1>
+                    <p>Microsoft Edge TTS · 腾讯 EdgeOne 边缘节点驱动</p>
+                </div>
+            </div>
+
+            <!-- Header Right Actions: API Doc Question Icon & Switch Toggle -->
+            <div class="header-actions">
+                <button id="api-doc-btn" class="icon-btn" title="API 接口文档">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
+
+                <!-- Theme Switch Toggle -->
+                <label class="theme-switch" title="切换暗色 / 浅色主题">
+                    <input type="checkbox" id="theme-toggle-checkbox">
+                    <span class="switch-slider">
+                        <span class="switch-icon moon">🌙</span>
+                        <span class="switch-icon sun">☀️</span>
+                    </span>
+                </label>
+            </div>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <div class="main-grid">
+
+            <!-- ── Left Column: Secret, Text, Audio (Fixed Sticky Area) ── -->
+            <div class="column col-left">
+
+                <form id="tts-form" style="display:flex; flex-direction:column; gap:20px;" autocomplete="off">
+                    
+                    <!-- Secret / API Key -->
+                    <div class="card">
+                        <div class="card-header" style="margin-bottom:8px;">
+                            <div class="card-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                </svg>
+                                API Key 密钥
+                            </div>
+                            <span class="input-hint" id="token-saved-hint">✓ 已实时保存到本地</span>
+                        </div>
+                        <input id="api-token" type="password" placeholder="Bearer Token（留空表示无鉴权）" />
+                    </div>
+
+                    <!-- Text Area & Submit -->
+                    <div class="card">
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label for="text">
+                                输入合成文本 <span style="color:var(--error)">*</span>
+                            </label>
+                            <textarea id="text" required placeholder="在此输入要朗读的文本，支持换行分段合成…">你好啊，亲爱的朋友们！欢迎使用 EdgeOne TTS 语音合成服务。</textarea>
+                        </div>
+
+                        <button id="submit-btn" class="btn-primary" type="submit">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                            </svg>
+                            生成语音
+                        </button>
+
+                        <div id="loading-bar" class="loading-bar" style="margin-top:14px"></div>
+
+                        <div class="status-row" style="margin-top:10px" id="status-row">
+                            <div class="status-dot" id="status-dot" style="display:none"></div>
+                            <span class="status-text" id="status-text"></span>
+                        </div>
+
+                        <!-- Audio Output -->
+                        <div class="audio-section" id="audio-section">
+                            <div class="card-title" style="font-size:13px;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z" />
+                                </svg>
+                                合成结果播放
+                            </div>
+                            <audio id="audio-player" controls preload="auto"></audio>
+                            <div>
+                                <a id="download-link" class="download-btn" download="tts-output.mp3">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z" />
+                                    </svg>
+                                    下载音频文件
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <!-- ── Right Column: Settings Components (Scrollable Area) ── -->
+            <div class="column col-right">
+
+                <!-- Voice Selection Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/>
+                            </svg>
+                            语音角色
+                        </div>
+                        <span class="card-subtitle" id="selected-voice-label">已选: 晓晓 (女)</span>
+                    </div>
+
+                    <!-- Category Tabs Nav -->
+                    <div class="tabs-nav" id="voice-tabs-nav"></div>
+
+                    <!-- Voice Cards Grid -->
+                    <div class="voice-grid" id="voice-grid"></div>
+                </div>
+
+                <!-- Emotional Style Card -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom:12px;">
+                        <div class="card-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-8c.83 0 1.5-.67 1.5-1.5S7.33 9 6.5 9 5 9.67 5 10.5 5.67 12 6.5 12zm11 0c.83 0 1.5-.67 1.5-1.5S18.33 9 17.5 9s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm-5.5 4c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                            </svg>
+                            情感风格
+                        </div>
+                        <span class="card-subtitle" id="style-support-badge">常规</span>
+                    </div>
+
+                    <!-- Style Chips Grid -->
+                    <div class="chips-grid" id="style-chips-grid"></div>
+
+                    <!-- Style Degree Slider (conditional) -->
+                    <div class="form-group" id="style-degree-group" style="display:none; margin-top:16px;">
+                        <label for="style-degree">风格强度</label>
+                        <div class="slider-row">
+                            <input id="style-degree" type="range" min="0.01" max="2.0" step="0.01" value="1.0" />
+                            <span class="slider-val" id="style-degree-val">1.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parameters Card (Speed, Pitch, Volume) -->
+                <div class="card">
+                    <div class="card-title" style="margin-bottom:16px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
                         </svg>
-                        下载 MP3
-                    </a>
-                </div>
-            </div>
-        </div>
+                        声音调节
+                    </div>
 
-        <div class="api-card">
-            <h2>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent-2)">
-                    <path
-                        d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
-                </svg>
-                API 接口说明
-            </h2>
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <!-- Speed -->
+                        <div class="form-group">
+                            <label for="speed">语速</label>
+                            <div class="slider-row">
+                                <input id="speed" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+                                <span class="slider-val" id="speed-val">1.0x</span>
+                            </div>
+                        </div>
 
-            <div class="api-block">
-                <div class="api-method">
-                    <span class="badge post">POST</span>
-                    <span class="api-url">/v1/audio/speech</span>
+                        <!-- Pitch -->
+                        <div class="form-group">
+                            <label for="pitch">音调</label>
+                            <div class="slider-row">
+                                <input id="pitch" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+                                <span class="slider-val" id="pitch-val">1.0x</span>
+                            </div>
+                        </div>
+
+                        <!-- Volume -->
+                        <div class="form-group">
+                            <label for="volume">音量</label>
+                            <div class="slider-row">
+                                <input id="volume" type="range" min="0.1" max="2.0" step="0.1" value="1.0" />
+                                <span class="slider-val" id="volume-val">1.0x</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="api-desc" style="line-height: 1.6;">
-                    <strong>Headers:</strong> <code>Authorization: Bearer &lt;API_KEY&gt;</code><br />
-                    <strong>Body (JSON):</strong>
-                    <pre
-                        style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; margin-top:8px; overflow-x:auto; font-family: 'Menlo', 'Monaco', 'Consolas', monospace; font-size:12px; color:var(--text-2);">{
-  "input": "要合成的文本 (必填)",
-  "voice": "zh-CN-XiaoxiaoNeural (可选)",
-  "speed": 1.0,               // 语速 0.5 ~ 2.0
-  "pitch": 1.0,               // 音调 0.5 ~ 2.0
-  "volume": 1.0,              // 音量 0.1 ~ 2.0
-  "style": "general",         // 情感风格 (如 cheerful, sad)
-  "styleDegree": 1.0,         // 风格强度 0.01 ~ 2.0 (可选，默认 1.0)
-  "format": "audio-24khz-48kbitrate-mono-mp3" // 音频格式
-}</pre>
+
+                <!-- Output Format Card -->
+                <div class="card">
+                    <div class="card-title" style="margin-bottom:14px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
+                        </svg>
+                        输出音频格式
+                    </div>
+
+                    <div class="format-grid" id="format-grid"></div>
                 </div>
+
             </div>
 
-            <div class="api-block">
-                <div class="api-method">
-                    <span class="badge get">GET</span>
-                    <span class="api-url">/v1/audio/speech</span>
-                </div>
-                <div class="api-desc">
-                    适合阅读 APP (如 Legado) 直接调用。为了彻底避免特殊字符导致的 404 错误，现在推荐直接使用 URL 查询参数传递文本（需 URL 编码）。<br />
-                    <strong>Query 参数支持:</strong>
-                    <ul style="margin-top:8px; margin-bottom:12px; padding-left:20px; color:var(--text-2);">
-                        <li><code>text</code>: <strong>(必填)</strong> 要合成的文本</li>
-                        <li><code>voice</code>: 发音人角色</li>
-                        <li><code>speed</code>: 语速，0.5 ~ 2.0 (默认 1.0)</li>
-                        <li><code>pitch</code>: 音调，0.5 ~ 2.0 (默认 1.0)</li>
-                        <li><code>volume</code>: 音量，0.1 ~ 2.0 (默认 1.0)</li>
-                        <li><code>style</code>: 情感风格 (如 general, cheerful, angry 等)</li>
-                        <li><code>styleDegree</code>: 风格强度，0.01 ~ 2.0 (可选，默认 1.0)</li>
-                        <li><code>format</code>: 输出音频格式 (默认 24kHz MP3)</li>
-                        <li><code>token</code>: API 密钥 (可选，支持直接在 URL 中鉴权)</li>
-                    </ul>
-                    <strong>示例：</strong><br />
-                    <code
-                        style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech?text=你好世界&voice=zh-CN-YunxiNeural&speed=1.2&volume=1.5&style=cheerful&token=API_KEY</code>
-                </div>
-            </div>
         </div>
 
         <footer class="footer">
@@ -762,212 +1061,246 @@
         </footer>
     </div>
 
+    <!-- ── API Docs Modal Window ────────────────────── -->
+    <div id="api-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="card-title" style="font-size:1.1rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--accent-2)">
+                        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+                    </svg>
+                    API 接口使用说明
+                </div>
+                <button id="modal-close" class="modal-close-btn" title="关闭">&times;</button>
+            </div>
+
+            <div class="api-block">
+                <div class="api-method">
+                    <span class="badge post">POST</span>
+                    <span class="api-url">/v1/audio/speech</span>
+                </div>
+                <div class="api-desc">
+                    <strong>Headers:</strong> <code>Authorization: Bearer &lt;API_KEY&gt;</code><br />
+                    <strong>Body (JSON):</strong>
+                    <pre style="background:rgba(0,0,0,0.15); padding:12px; border-radius:6px; margin-top:8px; overflow-x:auto; font-family:'Menlo','Monaco',monospace; font-size:12px;">{
+  "input": "要合成的文本",
+  "voice": "zh-CN-XiaoxiaoNeural",
+  "speed": 1.0,
+  "pitch": 1.0,
+  "volume": 1.0,
+  "style": "general",
+  "styleDegree": 1.0,
+  "format": "audio-24khz-48kbitrate-mono-mp3"
+}</pre>
+                </div>
+            </div>
+
+            <div class="api-block" style="margin-bottom:0;">
+                <div class="api-method">
+                    <span class="badge get">GET</span>
+                    <span class="api-url">/v1/audio/speech</span>
+                </div>
+                <div class="api-desc">
+                    适合阅读 APP (如 Legado) 直接调用。<br />
+                    <strong>Query 参数:</strong>
+                    <ul style="margin-top:6px; margin-bottom:8px; padding-left:20px;">
+                        <li><code>text</code>: <strong>(必填)</strong> 要合成的文本</li>
+                        <li><code>voice</code>: 发音人角色</li>
+                        <li><code>speed</code> / <code>pitch</code> / <code>volume</code>: 范围 0.5 ~ 2.0</li>
+                        <li><code>style</code>: 情感风格 (如 general, cheerful)</li>
+                        <li><code>styleDegree</code>: 风格强度 (0.01 ~ 2.0)</li>
+                        <li><code>format</code>: 输出音频格式</li>
+                        <li><code>token</code>: API 密钥</li>
+                    </ul>
+                    <strong>调用示例:</strong><br />
+                    <code style="word-break:break-all; display:inline-block; margin-top:4px;">/v1/audio/speech?text=你好世界&voice=zh-CN-YunxiNeural&speed=1.2&token=API_KEY</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function () {
-            // ── 语音角色 → 支持的情感风格映射表 ──────────────────
-            // 数据来源：微软官方文档 language-support#voice-styles-and-roles
+            // ── 语音角色数据定义 ──────────────────────────────────
+            const VOICE_CATEGORIES = [
+                { id: 'mandarin', name: '普通话' },
+                { id: 'dialect', name: '方言' },
+                { id: 'cantonese_tw', name: '粤语/台湾' },
+                { id: 'multilingual', name: '多语言' },
+                { id: 'foreign', name: '外语' },
+            ];
+
+            const VOICE_OPTIONS = [
+                // 中文普通话
+                { value: 'zh-CN-XiaoxiaoNeural', name: '晓晓', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoyiNeural', name: '晓伊', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaochenNeural', name: '晓辰', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaohanNeural', name: '晓涵', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaomengNeural', name: '晓梦', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaomoNeural', name: '晓墨', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoqiuNeural', name: '晓秋', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoruiNeural', name: '晓睿', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoshuangNeural', name: '晓双', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoxuanNeural', name: '晓萱', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoyanNeural', name: '晓颜', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaoyouNeural', name: '晓悠', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaozhenNeural', name: '晓甄', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaominNeural', name: '晓敏', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-XiaorouNeural', name: '晓柔', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-YunxiNeural', name: '云希', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunyangNeural', name: '云扬', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunjianNeural', name: '云健', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunfengNeural', name: '云枫', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunhaoNeural', name: '云皓', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunxiaNeural', name: '云夏', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunyeNeural', name: '云野', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunzeNeural', name: '云泽', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YunjieNeural', name: '云杰', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YundongNeural', name: '云东', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-HuihuiNeural', name: '慧慧', gender: '女', cat: 'mandarin' },
+                { value: 'zh-CN-KangkangNeural', name: '康康', gender: '男', cat: 'mandarin' },
+                { value: 'zh-CN-YaoyaoNeural', name: '瑶瑶', gender: '女', cat: 'mandarin' },
+
+                // 方言
+                { value: 'zh-CN-liaoning-XiaobeiNeural', name: '晓北', desc: '东北话', gender: '女', cat: 'dialect' },
+                { value: 'zh-CN-liaoning-YunbiaoNeural', name: '云彪', desc: '辽宁话', gender: '男', cat: 'dialect' },
+                { value: 'zh-CN-shaanxi-XiaoniNeural', name: '晓妮', desc: '陕西话', gender: '女', cat: 'dialect' },
+                { value: 'zh-CN-shandong-YunxiangNeural', name: '云翔', desc: '山东话', gender: '男', cat: 'dialect' },
+                { value: 'zh-CN-sichuan-YunxiNeural', name: '云希', desc: '四川话', gender: '男', cat: 'dialect' },
+                { value: 'zh-CN-guangxi-YunqiNeural', name: '云奇', desc: '广西话', gender: '男', cat: 'dialect' },
+                { value: 'zh-CN-henan-YundengNeural', name: '云登', desc: '河南话', gender: '男', cat: 'dialect' },
+
+                // 粤语 & 台湾
+                { value: 'zh-HK-HiuGaaiNeural', name: '晓佳', desc: '粤语', gender: '女', cat: 'cantonese_tw' },
+                { value: 'zh-HK-HiuMaanNeural', name: '晓曼', desc: '香港', gender: '女', cat: 'cantonese_tw' },
+                { value: 'zh-HK-WanLungNeural', name: '云龙', desc: '香港', gender: '男', cat: 'cantonese_tw' },
+                { value: 'zh-TW-HsiaoChenNeural', name: '晓辰', desc: '台湾', gender: '女', cat: 'cantonese_tw' },
+                { value: 'zh-TW-HsiaoYuNeural', name: '晓雨', desc: '台湾', gender: '女', cat: 'cantonese_tw' },
+                { value: 'zh-TW-YunJheNeural', name: '云哲', desc: '台湾', gender: '男', cat: 'cantonese_tw' },
+
+                // 多语言
+                { value: 'zh-CN-XiaoxiaoMultilingualNeural', name: '晓晓', desc: '多语言', gender: '女', cat: 'multilingual' },
+                { value: 'zh-CN-XiaoxiaoDialectsNeural', name: '晓晓', desc: '方言', gender: '女', cat: 'multilingual' },
+                { value: 'zh-CN-XiaochenMultilingualNeural', name: '晓晨', desc: '多语言', gender: '女', cat: 'multilingual' },
+                { value: 'zh-CN-XiaoyuMultilingualNeural', name: '晓宇', desc: '多语言', gender: '女', cat: 'multilingual' },
+                { value: 'zh-CN-YunyiMultilingualNeural', name: '云一', desc: '多语言', gender: '男', cat: 'multilingual' },
+                { value: 'zh-CN-YunfanMultilingualNeural', name: '云凡', desc: '多语言', gender: '男', cat: 'multilingual' },
+                { value: 'zh-CN-YunxiaoMultilingualNeural', name: '云晓', desc: '多语言', gender: '男', cat: 'multilingual' },
+
+                // 外语
+                { value: 'en-US-JennyNeural', name: 'Jenny', desc: '英文女', gender: '女', cat: 'foreign' },
+                { value: 'en-US-GuyNeural', name: 'Guy', desc: '英文男', gender: '男', cat: 'foreign' },
+                { value: 'en-US-AriaNeural', name: 'Aria', desc: '英文女', gender: '女', cat: 'foreign' },
+                { value: 'en-US-DavisNeural', name: 'Davis', desc: '英文男', gender: '男', cat: 'foreign' },
+                { value: 'ja-JP-NanamiNeural', name: 'Nanami', desc: '日文女', gender: '女', cat: 'foreign' },
+                { value: 'ja-JP-KeitaNeural', name: 'Keita', desc: '日文男', gender: '男', cat: 'foreign' },
+                { value: 'ko-KR-SunHiNeural', name: 'Sun-Hi', desc: '韩文女', gender: '女', cat: 'foreign' },
+                { value: 'ko-KR-InJoonNeural', name: 'InJoon', desc: '韩文男', gender: '男', cat: 'foreign' },
+            ];
+
+            // ── 格式数据定义 ──────────────────────────────────
+            const FORMAT_OPTIONS = [
+                { value: 'audio-24khz-48kbitrate-mono-mp3', label: 'MP3 24kHz', desc: '48kbps (标准推荐)', badge: 'MP3' },
+                { value: 'audio-24khz-96kbitrate-mono-mp3', label: 'MP3 24kHz', desc: '96kbps 中音质', badge: 'MP3' },
+                { value: 'audio-48khz-96kbitrate-mono-mp3', label: 'MP3 48kHz', desc: '96kbps 高音质', badge: 'MP3' },
+                { value: 'audio-48khz-192kbitrate-mono-mp3', label: 'MP3 48kHz', desc: '192kbps 超高音质', badge: 'MP3' },
+                { value: 'riff-24khz-16bit-mono-pcm', label: 'WAV 24kHz', desc: 'PCM 无损', badge: 'WAV' },
+                { value: 'riff-48khz-16bit-mono-pcm', label: 'WAV 48kHz', desc: 'PCM 超高无损', badge: 'WAV' },
+                { value: 'ogg-24khz-16bit-mono-opus', label: 'OGG 24kHz', desc: 'Opus 编码', badge: 'OGG' },
+                { value: 'webm-24khz-16bit-mono-opus', label: 'WebM 24kHz', desc: 'Opus 编码', badge: 'WebM' },
+            ];
+
+            // ── 风格定义 ──────────────────────────────────────
             const STYLE_LABELS = {
                 'general':                   '常规 (General)',
-                'advertisement_upbeat':      '广告活力 (Advertisement Upbeat)',
-                'affectionate':              '亲切 (Affectionate)',
-                'angry':                     '愤怒 (Angry)',
-                'assistant':                 '助理 (Assistant)',
-                'calm':                      '平静 (Calm)',
-                'chat':                      '闲聊 (Chat)',
-                'chat-casual':               '轻松闲聊 (Chat Casual)',
-                'cheerful':                  '欢快 (Cheerful)',
-                'customerservice':           '客服 (Customer Service)',
-                'depressed':                 '沮丧 (Depressed)',
-                'disgruntled':               '不满 (Disgruntled)',
-                'documentary-narration':     '纪录片解说 (Documentary)',
-                'embarrassed':               '尴尬 (Embarrassed)',
-                'empathetic':                '共情 (Empathetic)',
-                'envious':                   '羡慕 (Envious)',
-                'excited':                   '兴奋 (Excited)',
-                'fearful':                   '恐惧 (Fearful)',
-                'friendly':                  '友好 (Friendly)',
-                'gentle':                    '温和 (Gentle)',
-                'hopeful':                   '希望 (Hopeful)',
-                'lyrical':                   '抒情 (Lyrical)',
-                'narration-professional':    '专业旁白 (Narration Professional)',
-                'narration-relaxed':         '轻松旁白 (Narration Relaxed)',
-                'newscast':                  '新闻播报 (Newscast)',
-                'newscast-casual':           '轻松新闻 (Newscast Casual)',
-                'newscast-formal':           '正式新闻 (Newscast Formal)',
-                'poetry-reading':            '诗歌朗读 (Poetry)',
-                'sad':                       '悲伤 (Sad)',
-                'serious':                   '严肃 (Serious)',
-                'shouting':                  '呼喊 (Shouting)',
-                'sports_commentary':         '体育解说 (Sports Commentary)',
-                'sports_commentary_excited': '激情体育 (Sports Commentary Excited)',
-                'whispering':                '低语 (Whispering)',
-                'terrified':                 '惊恐 (Terrified)',
-                'unfriendly':                '冷漠 (Unfriendly)',
+                'advertisement_upbeat':      '广告活力',
+                'affectionate':              '亲切',
+                'angry':                     '愤怒',
+                'assistant':                 '助理',
+                'calm':                      '平静',
+                'chat':                      '闲聊',
+                'chat-casual':               '轻松闲聊',
+                'cheerful':                  '欢快',
+                'customerservice':           '客服',
+                'depressed':                 '沮丧',
+                'disgruntled':               '不满',
+                'documentary-narration':     '纪录片解说',
+                'embarrassed':               '尴尬',
+                'empathetic':                '共情',
+                'envious':                   '羡慕',
+                'excited':                   '兴奋',
+                'fearful':                   '恐惧',
+                'friendly':                  '友好',
+                'gentle':                    '温和',
+                'hopeful':                   '希望',
+                'lyrical':                   '抒情',
+                'narration-professional':    '专业旁白',
+                'narration-relaxed':         '轻松旁白',
+                'newscast':                  '新闻播报',
+                'newscast-casual':           '轻松新闻',
+                'newscast-formal':           '正式新闻',
+                'poetry-reading':            '诗歌朗读',
+                'sad':                       '悲伤',
+                'serious':                   '严肃',
+                'shouting':                  '呼喊',
+                'sports_commentary':         '体育解说',
+                'sports_commentary_excited': '激情体育',
+                'whispering':                '低语',
+                'terrified':                 '惊恐',
+                'unfriendly':                '冷漠',
             };
 
-            // 语音角色的风格支持表（按微软官方文档整理）
-            // 未列出的角色表示只支持 general
             const VOICE_STYLES = {
-                // ── 中文普通话 ──
-                'zh-CN-XiaoxiaoNeural': [
-                    'general','assistant','chat','customerservice','newscast',
-                    'affectionate','angry','calm','cheerful','disgruntled',
-                    'embarrassed','empathetic','fearful','gentle','lyrical',
-                    'sad','serious','poetry-reading',
-                ],
-                'zh-CN-XiaoyiNeural': [
-                    'general','angry','cheerful','disgruntled','embarrassed',
-                    'fearful','gentle','sad','serious',
-                ],
-                'zh-CN-XiaochenNeural': [
-                    'general',
-                ],
-                'zh-CN-XiaohanNeural': [
-                    'general','angry','calm','cheerful','disgruntled',
-                    'embarrassed','fearful','gentle','sad','serious',
-                ],
-                'zh-CN-XiaomengNeural': [
-                    'general','chat',
-                ],
-                'zh-CN-XiaomoNeural': [
-                    'general','angry','calm','cheerful','depressed',
-                    'disgruntled','embarrassed','envious','fearful',
-                    'gentle','sad','serious',
-                ],
-                'zh-CN-XiaoqiuNeural': [
-                    'general',
-                ],
-                'zh-CN-XiaoruiNeural': [
-                    'general','angry','calm','fearful','sad',
-                ],
-                'zh-CN-XiaoshuangNeural': [
-                    'general','chat',
-                ],
-                'zh-CN-XiaoxuanNeural': [
-                    'general','angry','calm','cheerful','depressed',
-                    'disgruntled','fearful','gentle','serious',
-                ],
-                'zh-CN-XiaoyanNeural': [
-                    'general',
-                ],
-                'zh-CN-XiaoyouNeural': [
-                    'general',
-                ],
-                'zh-CN-XiaozhenNeural': [
-                    'general','angry','cheerful','disgruntled',
-                    'fearful','sad','serious',
-                ],
-                'zh-CN-XiaominNeural': [
-                    'general',
-                ],
-                'zh-CN-XiaorouNeural': [
-                    'general',
-                ],
-                'zh-CN-YunxiNeural': [
-                    'general','angry','assistant','chat','cheerful',
-                    'depressed','disgruntled','embarrassed','fearful',
-                    'narration-relaxed','newscast','sad','serious',
-                ],
-                'zh-CN-YunyangNeural': [
-                    'general','customerservice','narration-professional',
-                    'newscast-casual',
-                ],
-                'zh-CN-YunjianNeural': [
-                    'general','angry','cheerful','depressed','disgruntled',
-                    'documentary-narration','narration-relaxed','sad','serious',
-                    'sports_commentary','sports_commentary_excited',
-                ],
-                'zh-CN-YunfengNeural': [
-                    'general','angry','cheerful','depressed','disgruntled',
-                    'fearful','sad','serious',
-                ],
-                'zh-CN-YunhaoNeural': [
-                    'general','advertisement_upbeat',
-                ],
-                'zh-CN-YunxiaNeural': [
-                    'general',
-                ],
-                'zh-CN-YunyeNeural': [
-                    'general','angry','calm','cheerful','disgruntled',
-                    'embarrassed','fearful','sad','serious',
-                ],
-                'zh-CN-YunzeNeural': [
-                    'general','angry','assistant','calm','chat',
-                    'cheerful','depressed','disgruntled','documentary-narration',
-                    'fearful','friendly','lyrical','newscast-casual',
-                    'newscast-formal','sad','serious','shouting',
-                    'terrified','unfriendly','whispering',
-                ],
-                'zh-CN-YunjieNeural': [
-                    'general',
-                ],
-                'zh-CN-YundongNeural': [
-                    'general',
-                ],
-                // ── 方言 ──
-                'zh-CN-liaoning-XiaobeiNeural': ['general'],
-                'zh-CN-liaoning-YunbiaoNeural': ['general'],
-                'zh-CN-shaanxi-XiaoniNeural': ['general'],
-                'zh-CN-shandong-YunxiangNeural': ['general'],
-                'zh-CN-sichuan-YunxiNeural': ['general'],
-                'zh-CN-guangxi-YunqiNeural': ['general'],
-                'zh-CN-henan-YundengNeural': ['general'],
-                // ── 香港 (粤语) ──
-                'zh-HK-HiuGaaiNeural': ['general'],
-                'zh-HK-HiuMaanNeural': ['general'],
-                'zh-HK-WanLungNeural': ['general'],
-                // ── 台湾 ──
-                'zh-TW-HsiaoChenNeural': ['general'],
-                'zh-TW-HsiaoYuNeural': ['general'],
-                'zh-TW-YunJheNeural': ['general'],
-                // ── 多语言 ──
-                'zh-CN-XiaoxiaoMultilingualNeural': [
-                    'general','calm','chat','cheerful','lyrical',
-                    'narration-professional','newscast','poetry-reading',
-                    'sad','serious','affectionate','angry',
-                ],
-                'zh-CN-XiaoxiaoDialectsNeural': ['general'],
-                'zh-CN-XiaochenMultilingualNeural': ['general'],
-                'zh-CN-XiaoyuMultilingualNeural': ['general'],
-                'zh-CN-YunyiMultilingualNeural': [
-                    'general','calm','chat','cheerful','newscast',
-                    'angry','affectionate','sad',
-                ],
-                'zh-CN-YunfanMultilingualNeural': ['general'],
-                'zh-CN-YunxiaoMultilingualNeural': ['general'],
-                // ── 英文 ──
-                'en-US-JennyNeural': [
-                    'general','assistant','chat','customerservice',
-                    'newscast','angry','cheerful','empathetic',
-                    'excited','friendly','hopeful','sad','shouting',
-                    'terrified','unfriendly','whispering',
-                ],
-                'en-US-GuyNeural': [
-                    'general','newscast','angry','cheerful',
-                    'excited','friendly','hopeful','sad',
-                    'shouting','terrified','unfriendly','whispering',
-                ],
-                'en-US-AriaNeural': [
-                    'general','chat','customerservice','empathetic',
-                    'narration-professional','newscast-casual','newscast-formal',
-                    'cheerful','angry','hopeful','sad','shouting',
-                    'terrified','unfriendly','whispering',
-                ],
-                'en-US-DavisNeural': [
-                    'general','chat','angry','cheerful','excited',
-                    'friendly','hopeful','sad','shouting',
-                    'terrified','unfriendly','whispering',
-                ],
-                // ── 日文 ──
-                'ja-JP-NanamiNeural': [
-                    'general','chat','customerservice','cheerful',
-                ],
-                'ja-JP-KeitaNeural': ['general'],
-                // ── 韩文 ──
-                'ko-KR-SunHiNeural': ['general'],
-                'ko-KR-InJoonNeural': ['general'],
+                'zh-CN-XiaoxiaoNeural': ['general','assistant','chat','customerservice','newscast','affectionate','angry','calm','cheerful','disgruntled','embarrassed','empathetic','fearful','gentle','lyrical','sad','serious','poetry-reading'],
+                'zh-CN-XiaoyiNeural': ['general','angry','cheerful','disgruntled','embarrassed','fearful','gentle','sad','serious'],
+                'zh-CN-XiaohanNeural': ['general','angry','calm','cheerful','disgruntled','embarrassed','fearful','gentle','sad','serious'],
+                'zh-CN-XiaomengNeural': ['general','chat'],
+                'zh-CN-XiaomoNeural': ['general','angry','calm','cheerful','depressed','disgruntled','embarrassed','envious','fearful','gentle','sad','serious'],
+                'zh-CN-XiaoruiNeural': ['general','angry','calm','fearful','sad'],
+                'zh-CN-XiaoshuangNeural': ['general','chat'],
+                'zh-CN-XiaoxuanNeural': ['general','angry','calm','cheerful','depressed','disgruntled','fearful','gentle','serious'],
+                'zh-CN-XiaozhenNeural': ['general','angry','cheerful','disgruntled','fearful','sad','serious'],
+                'zh-CN-YunxiNeural': ['general','angry','assistant','chat','cheerful','depressed','disgruntled','embarrassed','fearful','narration-relaxed','newscast','sad','serious'],
+                'zh-CN-YunyangNeural': ['general','customerservice','narration-professional','newscast-casual'],
+                'zh-CN-YunjianNeural': ['general','angry','cheerful','depressed','disgruntled','documentary-narration','narration-relaxed','sad','serious','sports_commentary','sports_commentary_excited'],
+                'zh-CN-YunfengNeural': ['general','angry','cheerful','depressed','disgruntled','fearful','sad','serious'],
+                'zh-CN-YunhaoNeural': ['general','advertisement_upbeat'],
+                'zh-CN-YunyeNeural': ['general','angry','calm','cheerful','disgruntled','embarrassed','fearful','sad','serious'],
+                'zh-CN-YunzeNeural': ['general','angry','assistant','calm','chat','cheerful','depressed','disgruntled','documentary-narration','fearful','friendly','lyrical','newscast-casual','newscast-formal','sad','serious','shouting','terrified','unfriendly','whispering'],
+                'zh-CN-XiaoxiaoMultilingualNeural': ['general','calm','chat','cheerful','lyrical','narration-professional','newscast','poetry-reading','sad','serious','affectionate','angry'],
+                'zh-CN-YunyiMultilingualNeural': ['general','calm','chat','cheerful','newscast','angry','affectionate','sad'],
+                'en-US-JennyNeural': ['general','assistant','chat','customerservice','newscast','angry','cheerful','empathetic','excited','friendly','hopeful','sad','shouting','terrified','unfriendly','whispering'],
+                'en-US-GuyNeural': ['general','newscast','angry','cheerful','excited','friendly','hopeful','sad','shouting','terrified','unfriendly','whispering'],
+                'en-US-AriaNeural': ['general','chat','customerservice','empathetic','narration-professional','newscast-casual','newscast-formal','cheerful','angry','hopeful','sad','shouting','terrified','unfriendly','whispering'],
+                'en-US-DavisNeural': ['general','chat','angry','cheerful','excited','friendly','hopeful','sad','shouting','terrified','unfriendly','whispering'],
+                'ja-JP-NanamiNeural': ['general','chat','customerservice','cheerful'],
             };
 
+            // ── State ──────────────────────────────────────────
+            let selectedVoice = 'zh-CN-XiaoxiaoNeural';
+            let selectedTab = 'mandarin';
+            let selectedStyle = 'general';
+            let selectedFormat = 'audio-24khz-48kbitrate-mono-mp3';
+
+            // ── DOM Elements ──────────────────────────────────
+            const themeCheckbox = document.getElementById('theme-toggle-checkbox');
+            const apiTokenInput = document.getElementById('api-token');
+            const tokenSavedHint = document.getElementById('token-saved-hint');
+            const voiceTabsNav = document.getElementById('voice-tabs-nav');
+            const voiceGrid = document.getElementById('voice-grid');
+            const selectedVoiceLabel = document.getElementById('selected-voice-label');
+            const styleChipsGrid = document.getElementById('style-chips-grid');
+            const styleSupportBadge = document.getElementById('style-support-badge');
+            const styleDegreeGroup = document.getElementById('style-degree-group');
+            const styleDegreeSlider = document.getElementById('style-degree');
+            const styleDegreeVal = document.getElementById('style-degree-val');
+            const formatGrid = document.getElementById('format-grid');
+            const speedSlider = document.getElementById('speed');
+            const pitchSlider = document.getElementById('pitch');
+            const volumeSlider = document.getElementById('volume');
+            const speedVal = document.getElementById('speed-val');
+            const pitchVal = document.getElementById('pitch-val');
+            const volumeVal = document.getElementById('volume-val');
             const form = document.getElementById('tts-form');
             const submitBtn = document.getElementById('submit-btn');
             const loadingBar = document.getElementById('loading-bar');
@@ -976,72 +1309,178 @@
             const audioSec = document.getElementById('audio-section');
             const audioEl = document.getElementById('audio-player');
             const dlLink = document.getElementById('download-link');
-            const speedSlider = document.getElementById('speed');
-            const pitchSlider = document.getElementById('pitch');
-            const volumeSlider = document.getElementById('volume');
-            const speedVal = document.getElementById('speed-val');
-            const pitchVal = document.getElementById('pitch-val');
-            const volumeVal = document.getElementById('volume-val');
-            const voiceSelect = document.getElementById('voice');
-            const styleSelect = document.getElementById('style');
-            const styleBadge = document.getElementById('style-support-badge');
-            const styleDegreeGroup = document.getElementById('style-degree-group');
-            const styleDegreeSlider = document.getElementById('style-degree');
-            const styleDegreeVal = document.getElementById('style-degree-val');
 
-            // ── 根据选中角色更新情感风格列表 ─────────────
+            // API Doc Modal Elements
+            const apiDocBtn = document.getElementById('api-doc-btn');
+            const apiModal = document.getElementById('api-modal');
+            const modalCloseBtn = document.getElementById('modal-close');
+
+            // ── Theme Switcher ────────────────────────────────
+            function setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('edgeone_tts_theme', theme);
+                themeCheckbox.checked = (theme === 'light');
+            }
+
+            const savedTheme = localStorage.getItem('edgeone_tts_theme') ||
+                (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            setTheme(savedTheme);
+
+            themeCheckbox.addEventListener('change', () => {
+                setTheme(themeCheckbox.checked ? 'light' : 'dark');
+            });
+
+            // ── API Modal Toggle ──────────────────────────────
+            function openApiModal() {
+                apiModal.classList.add('active');
+            }
+            function closeApiModal() {
+                apiModal.classList.remove('active');
+            }
+
+            apiDocBtn.addEventListener('click', openApiModal);
+            modalCloseBtn.addEventListener('click', closeApiModal);
+
+            apiModal.addEventListener('click', (e) => {
+                if (e.target === apiModal) {
+                    closeApiModal();
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && apiModal.classList.contains('active')) {
+                    closeApiModal();
+                }
+            });
+
+            // ── Secret Real-time Local Storage ───────────────
+            const savedToken = localStorage.getItem('edgeone_tts_api_token');
+            if (savedToken) {
+                apiTokenInput.value = savedToken;
+            }
+
+            let hintTimer = null;
+            apiTokenInput.addEventListener('input', () => {
+                localStorage.setItem('edgeone_tts_api_token', apiTokenInput.value.trim());
+                tokenSavedHint.classList.add('visible');
+                clearTimeout(hintTimer);
+                hintTimer = setTimeout(() => {
+                    tokenSavedHint.classList.remove('visible');
+                }, 2000);
+            });
+
+            // ── Render Voice Tabs Nav ────────────────────────
+            function renderVoiceTabs() {
+                voiceTabsNav.innerHTML = '';
+                VOICE_CATEGORIES.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `tab-btn ${cat.id === selectedTab ? 'active' : ''}`;
+                    btn.textContent = cat.name;
+                    btn.addEventListener('click', () => {
+                        selectedTab = cat.id;
+                        renderVoiceTabs();
+                        renderVoiceGrid();
+                    });
+                    voiceTabsNav.appendChild(btn);
+                });
+            }
+
+            // ── Render Voice Grid Cards ──────────────────────
+            function renderVoiceGrid() {
+                voiceGrid.innerHTML = '';
+                const filteredVoices = VOICE_OPTIONS.filter(v => v.cat === selectedTab);
+
+                filteredVoices.forEach(v => {
+                    const card = document.createElement('div');
+                    card.className = `voice-card ${v.value === selectedVoice ? 'active' : ''}`;
+
+                    const nameEl = document.createElement('div');
+                    nameEl.className = 'voice-name';
+                    nameEl.innerHTML = `${v.name} <span class="voice-gender-tag ${v.gender === '女' ? 'female' : 'male'}">${v.gender}</span>`;
+
+                    const descEl = document.createElement('div');
+                    descEl.className = 'voice-desc';
+                    descEl.textContent = v.desc || (v.gender === '女' ? '女声' : '男声');
+
+                    card.appendChild(nameEl);
+                    card.appendChild(descEl);
+
+                    card.addEventListener('click', () => {
+                        selectedVoice = v.value;
+                        selectedVoiceLabel.textContent = `已选: ${v.name} (${v.gender}${v.desc ? ' · ' + v.desc : ''})`;
+                        renderVoiceGrid();
+                        updateStyleOptions();
+                    });
+
+                    voiceGrid.appendChild(card);
+                });
+            }
+
+            // ── Render Style Chips ───────────────────────────
             function updateStyleOptions() {
-                const voice = voiceSelect.value;
-                const styles = VOICE_STYLES[voice] || ['general'];
-                const prevStyle = styleSelect.value;
+                const styles = VOICE_STYLES[selectedVoice] || ['general'];
+                if (!styles.includes(selectedStyle)) {
+                    selectedStyle = 'general';
+                }
 
-                // 清空并重建选项
-                styleSelect.innerHTML = '';
+                styleChipsGrid.innerHTML = '';
                 styles.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = STYLE_LABELS[s] || s;
-                    styleSelect.appendChild(opt);
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `chip-btn ${s === selectedStyle ? 'active' : ''}`;
+                    btn.textContent = STYLE_LABELS[s] || s;
+                    btn.addEventListener('click', () => {
+                        selectedStyle = s;
+                        updateStyleOptions();
+                    });
+                    styleChipsGrid.appendChild(btn);
                 });
 
-                // 尽量保留之前选中的风格
-                if (styles.includes(prevStyle)) {
-                    styleSelect.value = prevStyle;
-                } else {
-                    styleSelect.value = 'general';
-                }
-
-                // 更新徽章
                 if (styles.length <= 1) {
-                    styleBadge.textContent = '（此角色不支持风格切换）';
-                    styleBadge.style.color = 'var(--text-3)';
+                    styleSupportBadge.textContent = '单风格';
+                    styleSupportBadge.style.color = 'var(--text-3)';
                 } else {
-                    styleBadge.textContent = `（${styles.length} 种风格）`;
-                    styleBadge.style.color = 'var(--accent-2)';
+                    styleSupportBadge.textContent = `${styles.length} 种风格可选`;
+                    styleSupportBadge.style.color = 'var(--accent-2)';
                 }
 
-                // 更新风格强度滑块显示
                 updateStyleDegreeVisibility();
             }
 
             function updateStyleDegreeVisibility() {
-                const style = styleSelect.value;
-                if (style && style !== 'general') {
-                    styleDegreeGroup.style.display = 'block';
+                if (selectedStyle && selectedStyle !== 'general') {
+                    styleDegreeGroup.style.display = 'flex';
                 } else {
                     styleDegreeGroup.style.display = 'none';
                 }
             }
 
-            // 初始化风格列表
-            updateStyleOptions();
+            // ── Render Format Cards Grid ─────────────────────
+            function renderFormatGrid() {
+                formatGrid.innerHTML = '';
+                FORMAT_OPTIONS.forEach(fmt => {
+                    const card = document.createElement('div');
+                    card.className = `format-card ${fmt.value === selectedFormat ? 'active' : ''}`;
 
-            // 角色变更时更新风格
-            voiceSelect.addEventListener('change', updateStyleOptions);
-            // 风格变更时更新强度滑块显示
-            styleSelect.addEventListener('change', updateStyleDegreeVisibility);
+                    card.innerHTML = `
+                        <div class="format-title">
+                            ${fmt.label}
+                            <span class="format-badge">${fmt.badge}</span>
+                        </div>
+                        <div class="format-desc">${fmt.desc}</div>
+                    `;
 
-            // ── Slider labels ──────────────────────────
+                    card.addEventListener('click', () => {
+                        selectedFormat = fmt.value;
+                        renderFormatGrid();
+                    });
+
+                    formatGrid.appendChild(card);
+                });
+            }
+
+            // ── Sliders Event Listeners ───────────────────────
             speedSlider.addEventListener('input', () => {
                 speedVal.textContent = parseFloat(speedSlider.value).toFixed(1) + 'x';
             });
@@ -1055,7 +1494,7 @@
                 styleDegreeVal.textContent = parseFloat(styleDegreeSlider.value).toFixed(2);
             });
 
-            // ── Helper: set status ────────────────────
+            // ── Status Helper ────────────────────────────────
             function setStatus(msg, type) {
                 statusText.textContent = msg;
                 statusText.className = 'status-text' + (type ? ' ' + type : '');
@@ -1066,23 +1505,22 @@
                             'var(--warning)';
             }
 
-            // ── Form submit ───────────────────────────
+            // ── Form Submit ──────────────────────────────────
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const text = document.getElementById('text').value.trim();
-                const voice = document.getElementById('voice').value;
                 const speed = parseFloat(speedSlider.value);
                 const pitch = parseFloat(pitchSlider.value);
                 const volume = parseFloat(volumeSlider.value);
-                const style = styleSelect.value;
-                const styleDegree = style !== 'general' ? parseFloat(styleDegreeSlider.value) : undefined;
-                const format = document.getElementById('format').value;
-                const apiToken = document.getElementById('api-token').value.trim();
+                const styleDegree = selectedStyle !== 'general' ? parseFloat(styleDegreeSlider.value) : undefined;
+                const apiToken = apiTokenInput.value.trim();
 
-                if (!text) { setStatus('请输入要转换的文本', 'error'); return; }
+                if (!text) {
+                    setStatus('请输入要转换的文本', 'error');
+                    return;
+                }
 
-                // Reset UI
                 submitBtn.disabled = true;
                 loadingBar.classList.add('active');
                 audioSec.classList.remove('visible');
@@ -1098,7 +1536,17 @@
                     const res = await fetch('/v1/audio/speech', {
                         method: 'POST',
                         headers,
-                        body: JSON.stringify({ model: 'tts-1', input: text, voice, speed, pitch, volume, style, styleDegree, format }),
+                        body: JSON.stringify({
+                            model: 'tts-1',
+                            input: text,
+                            voice: selectedVoice,
+                            speed,
+                            pitch,
+                            volume,
+                            style: selectedStyle,
+                            styleDegree,
+                            format: selectedFormat
+                        }),
                     });
 
                     if (res.ok) {
@@ -1106,29 +1554,28 @@
                         const url = URL.createObjectURL(blob);
 
                         let ext = 'mp3';
-                        if (format.includes('pcm')) ext = 'wav';
-                        else if (format.includes('ogg')) ext = 'ogg';
-                        else if (format.includes('webm')) ext = 'webm';
+                        if (selectedFormat.includes('pcm')) ext = 'wav';
+                        else if (selectedFormat.includes('ogg')) ext = 'ogg';
+                        else if (selectedFormat.includes('webm')) ext = 'webm';
 
                         audioEl.src = url;
                         dlLink.href = url;
                         dlLink.download = `tts-output.${ext}`;
                         audioSec.classList.add('visible');
-                        setStatus('合成完成 ✓', 'success');
-                        // Auto play
+                        setStatus('合成成功 ✓', 'success');
                         audioEl.play().catch(() => { });
                     } else {
                         let errMsg = `HTTP ${res.status}`;
                         try {
-                            const text = await res.text();
+                            const resText = await res.text();
                             try {
-                                const j = JSON.parse(text);
-                                errMsg = j?.error?.message || j?.message || text;
+                                const j = JSON.parse(resText);
+                                errMsg = j?.error?.message || j?.message || resText;
                             } catch {
-                                errMsg = text || errMsg;
+                                errMsg = resText || errMsg;
                             }
-                        } catch (e) {
-                            errMsg += ' (读取响应失败: ' + e.message + ')';
+                        } catch (err) {
+                            errMsg += ' (读取响应失败)';
                         }
                         setStatus('错误：' + errMsg, 'error');
                     }
@@ -1139,6 +1586,13 @@
                     loadingBar.classList.remove('active');
                 }
             });
+
+            // ── Init Controls ────────────────────────────────
+            renderVoiceTabs();
+            renderVoiceGrid();
+            updateStyleOptions();
+            renderFormatGrid();
+
         })();
     </script>
 </body>
